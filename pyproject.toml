@@ -18,6 +18,6 @@ license = {text = "MIT"}
 distribution = false
 
 [tool.pdm.scripts]
-start = "python ./src/main.py"
+start = "python src/main.py"
 dev = "uvicorn src.main:app --port 10002 --reload"
 build = ""
