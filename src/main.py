@@ -14,6 +14,21 @@ async def send_line_command(request: Request):
     return {"statusCode": 200}
 
 
+@app.post("/telegram-command")
+async def send_telegram_command(request: Request):
+    return {"statusCode": 200}
+
+
+@app.post("/slack-command")
+async def send_slack_command(request: Request):
+    return {"statusCode": 200}
+
+
+@app.post("/discord-command")
+async def send_discord_command(request: Request):
+    return {"statusCode": 200}
+
+
 if __name__ == "__main__":
     import uvicorn
 
