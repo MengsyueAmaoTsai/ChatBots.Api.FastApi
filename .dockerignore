@@ -1,0 +1,12 @@
+*.egg
+*.egg-info/
+
+*.log
+
+tests/
+
+.git/
+.gitignore
+*.swp
+*.swo
+.DS_Store

@@ -5,20 +5,17 @@ description = "Add your description here"
 authors = [
     { name = "Mengsyue Amao Tsai", email = "mengsyue.tsai@outlook.com" }
 ]
-dependencies = []
+dependencies = [
+    "fastapi[standard]>=0.115.0",
+]
 readme = "README.md"
 requires-python = ">= 3.8"
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [tool.rye]
 managed = true
+virtual = true
 dev-dependencies = []
 
-[tool.hatch.metadata]
-allow-direct-references = true
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/chartbots_fastapi"]
+[tool.rye.scripts]
+dev = "uvicorn src.main:app --reload --host 127.0.0.1 --port 10002"
+start = "uvicorn src.main:app --host 0.0.0.0 --port 10002"
