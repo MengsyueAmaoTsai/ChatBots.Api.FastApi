@@ -10,7 +10,7 @@ class LineMessagingEndpoint:
     def __init__(self) -> None:
         self.router = APIRouter()
         self.router.add_api_route(
-            path=ApiRoutes.LineMessaging,
+            path=ApiRoutes.LINE_MESSAGING,
             endpoint=self.send_line_command,
             methods=["POST"],
             response_model=None,

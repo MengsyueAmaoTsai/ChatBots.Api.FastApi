@@ -1,2 +1,2 @@
 class ApiRoutes:
-    LineMessaging = "/api/v1/line-messaging"
+    LINE_MESSAGING = "/api/v1/line-messaging"
