@@ -79,7 +79,6 @@ class RequestDebuggingMiddleware(BaseHTTPMiddleware):
             else self.no_headers_content
         )
 
-        # 读取并缓存响应体
         response_body = b""
         async for chunk in response.body_iterator:
             response_body += chunk
