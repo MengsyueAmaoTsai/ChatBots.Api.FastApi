@@ -1,0 +1,54 @@
+name: RichillCapital.ChatBots.Api CI
+
+on:
+  push:
+    branches: 
+      - master
+      - dev
+  pull_request:
+    branches: 
+      - master
+      - dev
+
+env:
+  CONFIGURATION: Debug
+  IMAGE_NAME: chat-bots-api
+  APPLICATION_NAME: RichillCapital.ChatBots.Api
+  PUBLISH_DiRECTORY: ./publish
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps: 
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Use Nerdbank.GitVersioning
+      uses: dotnet/nbgv@master
+      id: nbgv    
+
+    - name: Get Version
+      id: version
+      run: echo "::set-output name=version::$(git describe --tags --abbrev=0 || date +'%Y%m%d')-${{ steps.nbgv.outputs.GitCommitIdShort }}"
+    
+    - name: Setup Rye
+      uses: eifinger/setup-rye@v4
+    
+    - name: Build and Tests
+      run: |
+        rye sync 
+
+    - name: Build Docker Image
+      run: |
+        docker build -t ${{ env.IMAGE_NAME }}:latest . 
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.APPLICATION_NAME }}-${{ steps.version.outputs.version }}-${{ matrix.os }}-${{ env.CONFIGURATION }}
+        path: ${{ env.PUBLISH_DiRECTORY }}     
+  
+  
