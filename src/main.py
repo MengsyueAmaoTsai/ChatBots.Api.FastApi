@@ -11,13 +11,13 @@ from linebot.v3.webhook import WebhookParser
 from linebot.v3.webhooks import MessageEvent, TextMessageContent
 
 configuration = Configuration(
-    access_token="CYVha414iAriyWy26KT5IZczjlHMcjmM705oMoKgmxh6ZUCycH3P/SYKoRaRF1yp4SK7vbehnvRDxATKdmU/9vq1jzI8gL/yE5D1jUEeu946HfUYVKQ4qKL6oogMkuVMaEPxwSVG1oJR5mKO+0eZBgdB04t89/1O/w1cDnyilFU="
+    access_token="MpUtsRPDJZJFf97uu2Xeby8F0aH0IQw6wPd8ovdmAUMoqPGX8IOcZaiixNCY5scbQCkAKf6qh3r+wII3ry1VojhZHxFj0ZcstUZq/52tKILB8GA4eQB+Q5+GjM2k+aBn8fDU5eUS7ykZhBQwjC3WfQdB04t89/1O/w1cDnyilFU="
 )
 
 app = FastAPI()
 async_api_client = AsyncApiClient(configuration)
 line_bot_api = AsyncMessagingApi(async_api_client)
-parser = WebhookParser("fee43f5bd8fc32085af1a4787e31cb6d")
+parser = WebhookParser("059dc70ee4cae01e3df05ac5813ed971")
 
 
 @app.get("/")
@@ -25,7 +25,7 @@ async def index():
     return {"Hello": "World"}
 
 
-@app.post("/line-command")
+@app.post("/api/v1/line-messaging")
 async def send_line_command(request: Request):
     signature = request.headers["X-Line-Signature"]
     body = await request.body()
