@@ -1,12 +1,14 @@
 import httpx
 from fastapi import APIRouter, Request
 
+from contracts import ApiRoutes
+
 
 class LineMessagingEndpoint:
     def __init__(self) -> None:
         self.router = APIRouter()
         self.router.add_api_route(
-            path="/api/v1/line-messaging",
+            path=ApiRoutes.LineMessaging,
             endpoint=self.send_line_command,
             methods=["POST"],
             response_model=None,
