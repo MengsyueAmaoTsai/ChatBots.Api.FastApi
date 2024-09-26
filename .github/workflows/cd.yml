@@ -5,7 +5,6 @@ on:
     tags:
       - '*'
 env:
-    PROJECT_PATH: ./RichillCapital.ChatBots.Api.csproj
     IMAGE_NAME: chat-bots-api
 
 jobs:
@@ -26,7 +25,6 @@ jobs:
       run: |
         sudo apt-get install -y xmlstarlet
         assemblyVersion=${{ steps.version.outputs.version }}
-        xmlstarlet ed --inplace -u "/Project/PropertyGroup/AssemblyVersion" -v "${assemblyVersion}" ${{ env.PROJECT_PATH }}    
 
     - name: Build Docker Image
       run: |

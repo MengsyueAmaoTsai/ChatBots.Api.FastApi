@@ -1,3 +1,3 @@
-# chartbots-fastapi
+# RichillCapital.ChatBots.Api
 
-Describe your project here.
+[![RichillCapital.ChatBots.Api CI](https://github.com/MengsyueAmaoTsai/ChatBots.Api.FastApi/actions/workflows/ci.yml/badge.svg)](https://github.com/MengsyueAmaoTsai/ChatBots.Api.FastApi/actions/workflows/ci.yml)
