@@ -1,0 +1,5 @@
+@Localhost = http://localhost:10002
+
+### Line Messaging
+POST {{Localhost}}/api/v1/line-messaging
+Content-Type: application/json

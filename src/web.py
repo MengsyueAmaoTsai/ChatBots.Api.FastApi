@@ -5,8 +5,10 @@ from argparse import ArgumentParser
 import uvicorn
 from fastapi import FastAPI
 
+from endpoints import LineMessagingEndpoint
+
 logging.basicConfig(
-    format="[%(asctime)s %(levelname)s] %(message)s",
+    format=f"[%(asctime)s %(levelname)s] {__name__} - %(message)s",
     level=logging.INFO,
 )
 
@@ -16,6 +18,10 @@ logger = logging.getLogger(__name__)
 class WebApplication:
     def __init__(self):
         self.__app = FastAPI()
+
+    @property
+    def app(self):
+        return self.__app
 
     @staticmethod
     def create_builder():
@@ -37,7 +43,7 @@ class WebApplication:
         logger.info(f"Content root path: {content_root_path}")
 
         uvicorn.run(
-            "main:app",
+            "main:app.app",
             host=parsed_args.host,
             port=parsed_args.port,
             reload=parsed_args.watch,
@@ -46,6 +52,12 @@ class WebApplication:
             use_colors=True,
             workers=4,
         )
+
+    def map_endpoints(self):
+        endpoints = [LineMessagingEndpoint()]
+
+        for endpoint in endpoints:
+            self.__app.include_router(endpoint.router)
 
 
 class WebApplicationBuilder:
