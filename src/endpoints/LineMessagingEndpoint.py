@@ -27,4 +27,5 @@ class LineMessagingEndpoint:
             reply_token = event.reply_token
             user_id = event.source.user_id
             print(f"Received message from user: {user_id} - {text}")
+
             await self.__messaging_service.send_reply_message(reply_token, text)

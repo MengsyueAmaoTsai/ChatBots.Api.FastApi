@@ -14,14 +14,14 @@ class MessageRequest(BaseModel):
     quote_token: Optional[str] = Field(alias="quoteToken")
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
 
 
 class DeliveryContextRequest(BaseModel):
     is_redelivery: bool = Field(alias="isRedelivery")
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
 
 
 class EventSourceRequest(BaseModel):
@@ -29,7 +29,7 @@ class EventSourceRequest(BaseModel):
     user_id: str = Field(alias="userId")
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
 
 
 class MessagingEventRequest(BaseModel):
@@ -43,7 +43,7 @@ class MessagingEventRequest(BaseModel):
     mode: str
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
 
 
 class SendReplyMessageRequest(BaseModel):
