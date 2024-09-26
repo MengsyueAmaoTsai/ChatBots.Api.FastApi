@@ -7,6 +7,7 @@ from fastapi import FastAPI
 
 from endpoints import LineMessagingEndpoint
 from middlewares import RequestDebuggingMiddleware
+from open_api import OpenApiConstants
 
 logging.basicConfig(
     format=f"[%(asctime)s %(levelname)s] {__name__} - %(message)s",
@@ -18,7 +19,14 @@ logger = logging.getLogger(__name__)
 
 class WebApplication:
     def __init__(self):
-        self.__app = FastAPI()
+        self.__app = FastAPI(
+            title=OpenApiConstants.TITLE,
+            description=OpenApiConstants.DESCRIPTION,
+            version=OpenApiConstants.VERSION,
+            contact=OpenApiConstants.CONTACT,
+            openapi_url=OpenApiConstants.SCHEMA_URL,
+            docs_url=OpenApiConstants.URL,
+        )
 
     @property
     def app(self):
