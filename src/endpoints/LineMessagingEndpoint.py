@@ -1,7 +1,10 @@
+import json
+
 import httpx
 from fastapi import APIRouter, Request
 
 from contracts import ApiRoutes
+from line import LineMessagingClient
 
 from .ApiTags import ApiTags
 
@@ -21,8 +24,24 @@ class LineMessagingEndpoint:
         self.__messaging_service = LineMessagingClient()
 
     async def send_line_command(self, request: Request):
-        async with httpx.AsyncClient(verify=False) as client:
-            response = await client.get("https://localhost:10000/api/v1/signals")
+        """"""
+        ## Get signature from headers
+        signature = request.headers["X-Line-Signature"]
+        print("Signature: ", signature)
 
-            json = response.json()
-            return json
+        ## Parse body
+        body = await request.body()
+        body = body.decode()
+        print("Body: ", body)
+
+        data = json.loads(body)
+
+        events = data["events"]
+
+        for event in events:
+            text = event["message"]["text"]
+            reply_token = event["replyToken"]
+            userId = event["source"]["userId"]
+
+            print(f"Received message from user: {userId} - {text}")
+            await self.__messaging_service.send_reply_message(reply_token, text)
