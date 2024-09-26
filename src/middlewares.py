@@ -29,6 +29,7 @@ class RequestDebuggingMiddleware(BaseHTTPMiddleware):
 
         start_time = time.time()
         print(f"Incoming request - {method} {path} from @{remote_ip_address}")
+
         response = await call_next(request)
         elapsed_time = time.time() - start_time
         status_code = response.status_code
