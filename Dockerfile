@@ -18,6 +18,8 @@ WORKDIR /app
 
 COPY --from=build /app .
 
+RUN pip install --no-cache-dir -r requirements.lock
+
 EXPOSE 10002
 
 CMD ["python", "./src/main.py"]
