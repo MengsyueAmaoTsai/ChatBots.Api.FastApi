@@ -39,7 +39,7 @@ class RequestDebuggingMiddleware(BaseHTTPMiddleware):
         )
 
         if status_code >= 400:
-            return await self.log_http_context_details(
+            return await self.handle_error_response(
                 request=request,
                 response=response,
                 query_string=query_string,
@@ -48,7 +48,7 @@ class RequestDebuggingMiddleware(BaseHTTPMiddleware):
 
         return response
 
-    async def log_http_context_details(
+    async def handle_error_response(
         self,
         request: Request,
         response: Response,
