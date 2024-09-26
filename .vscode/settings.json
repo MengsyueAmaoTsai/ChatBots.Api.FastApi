@@ -1,4 +1,4 @@
 {
   "python.analysis.typeCheckingMode": "strict",
-  "cSpell.words": ["fastapi", "uvicorn"]
+  "cSpell.words": ["ASGI", "fastapi", "starlette", "uvicorn"]
 }

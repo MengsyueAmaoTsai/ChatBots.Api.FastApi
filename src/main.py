@@ -6,6 +6,8 @@ builder = WebApplication.create_builder()
 
 app = builder.build()
 
+app.use_request_debugging()
+
 app.map_endpoints()
 
 if __name__ == "__main__":

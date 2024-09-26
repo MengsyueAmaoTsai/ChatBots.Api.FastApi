@@ -6,6 +6,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from endpoints import LineMessagingEndpoint
+from middlewares import RequestDebuggingMiddleware
 
 logging.basicConfig(
     format=f"[%(asctime)s %(levelname)s] {__name__} - %(message)s",
@@ -52,6 +53,9 @@ class WebApplication:
             use_colors=True,
             workers=4,
         )
+
+    def use_request_debugging(self):
+        self.__app.add_middleware(RequestDebuggingMiddleware)
 
     def map_endpoints(self):
         endpoints = [LineMessagingEndpoint()]
