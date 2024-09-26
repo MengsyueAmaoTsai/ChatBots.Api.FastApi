@@ -1,0 +1,2 @@
+class ApiTags:
+    LineMessaging = "LineMessaging"

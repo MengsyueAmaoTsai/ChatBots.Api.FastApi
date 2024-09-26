@@ -3,6 +3,8 @@ from fastapi import APIRouter, Request
 
 from contracts import ApiRoutes
 
+from .ApiTags import ApiTags
+
 
 class LineMessagingEndpoint:
     def __init__(self) -> None:
@@ -12,6 +14,7 @@ class LineMessagingEndpoint:
             endpoint=self.send_line_command,
             methods=["POST"],
             response_model=None,
+            tags=[ApiTags.LineMessaging],
         )
 
         ## services

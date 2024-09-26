@@ -25,7 +25,14 @@ class RequestDebuggingMiddleware(BaseHTTPMiddleware):
         path = request.url.path
         remote_ip_address = request.client.host
         query_string = str(request.query_params)
-        request_body_info = await request.json()
+
+        try:
+            request_body_bytes = await request.body()
+            request_body_info = (
+                request_body_bytes.decode("utf-8") or self.no_request_body_content
+            )
+        except Exception:
+            request_body_info = ""
 
         start_time = time.time()
         print(
