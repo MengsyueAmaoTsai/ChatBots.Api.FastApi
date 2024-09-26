@@ -2,6 +2,8 @@ from web import WebApplication
 
 builder = WebApplication.create_builder()
 
+## builder.services.add_endpoints()
+
 app = builder.build()
 
 app.map_endpoints()
