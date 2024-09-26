@@ -4,4 +4,5 @@ builder = WebApplication.create_builder()
 
 app = builder.build()
 
-app.run()
+if __name__ == "__main__":
+    app.run()

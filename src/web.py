@@ -22,14 +22,14 @@ class WebApplication:
         parsed_args = parser.parse_args()
 
         uvicorn.run(
-            "__main__:app",
+            "main:app",
             host=parsed_args.host,
             port=parsed_args.port,
             reload=parsed_args.watch,
-            workers=4,
             log_level="debug",
             access_log=True,
             use_colors=True,
+            workers=4,
         )
 
 
