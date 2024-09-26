@@ -1,3 +1,4 @@
+import httpx
 from fastapi import APIRouter, Request
 
 
@@ -14,6 +15,8 @@ class LineMessagingEndpoint:
         ## services
 
     async def send_line_command(self, request: Request):
-        body = await request.body()
-        print("Received body: ", body)
-        return {"statusCode": 200}
+        async with httpx.AsyncClient(verify=False) as client:
+            response = await client.get("https://localhost:10000/api/v1/signals")
+
+            json = response.json()
+            return json

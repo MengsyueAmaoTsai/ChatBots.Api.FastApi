@@ -3,3 +3,7 @@
 ### Line Messaging
 POST {{Localhost}}/api/v1/line-messaging
 Content-Type: application/json
+
+{
+    "data": "hello, world"
+}

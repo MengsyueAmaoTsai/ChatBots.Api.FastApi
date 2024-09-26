@@ -28,7 +28,9 @@ class RequestDebuggingMiddleware(BaseHTTPMiddleware):
         request_body_info = await request.json()
 
         start_time = time.time()
-        print(f"Incoming request - {method} {path} from @{remote_ip_address}")
+        print(
+            f"Incoming request - {method} {path} from {self.anonymous_user_name}@{remote_ip_address}"
+        )
 
         response = await call_next(request)
         elapsed_time = time.time() - start_time
