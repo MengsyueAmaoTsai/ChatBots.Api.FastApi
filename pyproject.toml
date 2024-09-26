@@ -20,3 +20,4 @@ dev-dependencies = []
 [tool.rye.scripts]
 dev = "uvicorn src.main:app --reload --host 127.0.0.1 --port 10002"
 start = "uvicorn src.main:app --host 0.0.0.0 --port 10002"
+serve = "python ./src/__main__.py"
