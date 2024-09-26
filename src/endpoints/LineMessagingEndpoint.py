@@ -18,6 +18,7 @@ class LineMessagingEndpoint:
         )
 
         ## services
+        self.__messaging_service = LineMessagingClient()
 
     async def send_line_command(self, request: Request):
         async with httpx.AsyncClient(verify=False) as client:
