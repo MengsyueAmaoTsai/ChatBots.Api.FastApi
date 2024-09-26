@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 
 
 class LineMessagingEndpoint:
@@ -13,6 +13,7 @@ class LineMessagingEndpoint:
 
         ## services
 
-    async def send_line_command(self, request: Request) -> None:
-        raise HTTPException(status_code=400, detail="Invalid signature")
+    async def send_line_command(self, request: Request):
+        body = await request.body()
+        print("Received body: ", body)
         return {"statusCode": 200}
