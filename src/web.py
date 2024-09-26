@@ -1,7 +1,16 @@
+import logging
+import os
 from argparse import ArgumentParser
 
 import uvicorn
 from fastapi import FastAPI
+
+logging.basicConfig(
+    format="[%(asctime)s %(levelname)s] %(message)s",
+    level=logging.INFO,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class WebApplication:
@@ -17,9 +26,15 @@ class WebApplication:
         parser.add_argument("--host", default="127.0.0.1", type=str)
         parser.add_argument("--port", default=10002, type=int)
         parser.add_argument("--watch", action="store_true")
-        parser.add_argument("--environment", default="development", type=str)
+        parser.add_argument("--environment", default="Development", type=str)
 
         parsed_args = parser.parse_args()
+        content_root_path = os.getcwd()
+
+        logger.info(f"Now listening on: http://{parsed_args.host}:{parsed_args.port}")
+        logger.info("Application started. Press Ctrl+C to shut down.")
+        logger.info(f"Hosting environment: {parsed_args.environment}")
+        logger.info(f"Content root path: {content_root_path}")
 
         uvicorn.run(
             "main:app",
