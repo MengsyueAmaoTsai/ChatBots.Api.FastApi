@@ -1,4 +1,4 @@
-from web import WebApplication
+from hosting import WebApplication
 
 builder = WebApplication.create_builder()
 
