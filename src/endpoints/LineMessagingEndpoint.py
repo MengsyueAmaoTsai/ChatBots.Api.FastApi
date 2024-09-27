@@ -30,12 +30,8 @@ class LineMessagingEndpoint:
         self.__resource_service = ResourceService()
 
     async def send_line_command(self, request: SendReplyMessageRequest):
-        """"""
-
         for event in request.events:
-            received_message = event.message.text
-
-            if received_message.strip() == "signals list":
+            if event.message.text.strip().startswith("signals list"):
                 reply_message = await self.get_signals_reply_message()
                 await self.__messaging_service.send_reply_message(
                     reply_token=event.reply_token, message=reply_message
