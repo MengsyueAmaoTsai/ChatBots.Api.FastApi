@@ -1,10 +1,13 @@
 from domain import ILineBotService, LineBotService
+from domain.abstractions import IResourceService
 from hosting import WebApplication
+from infrastructure.resources import ResourceService
 from line.messaging import LineMessagingClient
 
 builder = WebApplication.create_builder()
 
 ## Domain services
+builder.services.add_scoped(IResourceService, ResourceService)
 builder.services.add_scoped(ILineBotService, LineBotService)
 
 builder.services.add_scoped(LineMessagingClient)
