@@ -39,7 +39,7 @@ class WebApplication:
     def run(self):
         parser = ArgumentParser()
         parser.add_argument("--host", default="127.0.0.1", type=str)
-        parser.add_argument("--port", default=10002, type=int)
+        parser.add_argument("--port", default=10004, type=int)
         parser.add_argument("--watch", action="store_true")
         parser.add_argument("--environment", default="Development", type=str)
 

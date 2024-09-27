@@ -1,4 +1,4 @@
-@Localhost = http://localhost:10002
+@Localhost = http://localhost:10004
 
 ### Line Messaging
 POST {{Localhost}}/api/v1/line-messaging

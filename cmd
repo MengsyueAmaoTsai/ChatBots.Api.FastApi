@@ -3,8 +3,8 @@
 SERVICE_NAME=chat-bots-api
 IMAGE_NAME=chat-bots-api
 TAG=latest
-SERVICE_PORT=10002
-CONTAINER_PORT=10002
+SERVICE_PORT=10004
+CONTAINER_PORT=10004
 
 case $1 in
     build)

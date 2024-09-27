@@ -20,6 +20,6 @@ COPY --from=build /app .
 
 RUN pip install --no-cache-dir -r requirements.lock
 
-EXPOSE 10002
+EXPOSE 10004
 
-CMD ["python", "./src/main.py", "--port", "10002" "--host", "0.0.0.0", "--environment", "Production"]
+CMD ["python", "./src/main.py", "--port", "10004" "--host", "0.0.0.0", "--environment", "Production"]
