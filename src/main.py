@@ -1,7 +1,9 @@
+from domain import ILineBotService, LineBotService
 from hosting import WebApplication
 
 builder = WebApplication.create_builder()
 
+builder.services.add_scoped(ILineBotService, LineBotService)
 builder.services.add_endpoints()
 
 app = builder.build()

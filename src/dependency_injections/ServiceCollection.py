@@ -1,3 +1,5 @@
+from typing import Optional, overload
+
 from endpoints import LineMessagingEndpoint
 
 from .abstractions import IServiceCollection, IServiceProvider
@@ -10,8 +12,17 @@ class ServiceCollection(IServiceCollection):
     def __init__(self) -> None:
         self._service_descriptors: list[ServiceDescriptor] = []
 
-    def add_transient(self, service_type: type) -> IServiceCollection:
-        descriptor = ServiceDescriptor(service_type, service_type, ServiceLifetime.Transient)
+    @overload
+    def add_transient(self, service_type: type) -> IServiceCollection: ...
+
+    @overload
+    def add_transient(self, service_type: type, implementation_type: type) -> IServiceCollection: ...
+
+    def add_transient(self, service_type: type, implementation_type: Optional[type] = None) -> IServiceCollection:
+        if implementation_type is None:
+            implementation_type = service_type
+
+        descriptor = ServiceDescriptor(service_type, implementation_type, ServiceLifetime.Transient)
         self._service_descriptors.append(descriptor)
 
         print(
@@ -19,8 +30,17 @@ class ServiceCollection(IServiceCollection):
         )
         return self
 
-    def add_scoped(self, service_type: type) -> IServiceCollection:
-        descriptor = ServiceDescriptor(service_type, service_type, ServiceLifetime.Scoped)
+    @overload
+    def add_scoped(self, service_type: type) -> IServiceCollection: ...
+
+    @overload
+    def add_scoped(self, service_type: type, implementation_type: type) -> IServiceCollection: ...
+
+    def add_scoped(self, service_type: type, implementation_type: Optional[type] = None) -> IServiceCollection:
+        if implementation_type is None:
+            implementation_type = service_type
+
+        descriptor = ServiceDescriptor(service_type, implementation_type, ServiceLifetime.Scoped)
         self._service_descriptors.append(descriptor)
 
         print(
@@ -28,8 +48,17 @@ class ServiceCollection(IServiceCollection):
         )
         return self
 
-    def add_singleton(self, service_type: type) -> IServiceCollection:
-        descriptor = ServiceDescriptor(service_type, service_type, ServiceLifetime.Singleton)
+    @overload
+    def add_singleton(self, service_type: type) -> IServiceCollection: ...
+
+    @overload
+    def add_singleton(self, service_type: type, implementation_type: type) -> IServiceCollection: ...
+
+    def add_singleton(self, service_type: type, implementation_type: Optional[type] = None) -> IServiceCollection:
+        if implementation_type is None:
+            implementation_type = service_type
+
+        descriptor = ServiceDescriptor(service_type, implementation_type, ServiceLifetime.Singleton)
         self._service_descriptors.append(descriptor)
 
         print(

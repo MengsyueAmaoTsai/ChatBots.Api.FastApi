@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class ErrorType(Enum):
+    Null = 0
     Validation = 400
     Unauthorized = 401
     Forbidden = 403
@@ -28,6 +29,10 @@ class Error:
     @property
     def message(self) -> str:
         return self.__message
+
+    @staticmethod
+    def null() -> "Error":
+        return Error(ErrorType.Null, "NoError", str())
 
     @staticmethod
     def create(type: ErrorType, code: str, message: str) -> "Error":

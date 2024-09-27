@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from .Error import Error
 
@@ -7,11 +6,11 @@ from .Error import Error
 @dataclass(frozen=True)
 class Result:
     _is_success: bool
-    _error: Optional[Error]
+    _error: Error
 
     @classmethod
     def success(cls) -> "Result":
-        return cls(True, None)
+        return cls(True, Error.null())
 
     @classmethod
     def failure(cls, error: Error) -> "Result":
@@ -26,5 +25,8 @@ class Result:
         return not self._is_success
 
     @property
-    def error(self) -> Optional[Error]:
+    def error(self) -> Error:
+        if self.is_success:
+            return Error.null()
+
         return self._error

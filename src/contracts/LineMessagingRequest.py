@@ -43,7 +43,5 @@ class MessagingEventRequest(BaseModel):
 
 
 class LineMessagingRequest(BaseModel):
-    """"""
-
     destination: str
     events: list[MessagingEventRequest]
