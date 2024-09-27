@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from contracts import ApiRoutes, SendReplyMessageRequest
+from contracts import ApiRoutes, LineMessagingRequest
+from infrastructure.resources import ResourceService
 from line import LineMessagingClient
-from resources import ResourceService
 
 from .ApiTags import ApiTags
 
@@ -29,7 +29,7 @@ class LineMessagingEndpoint:
 
         self.__resource_service = ResourceService()
 
-    async def send_line_command(self, request: SendReplyMessageRequest):
+    async def send_line_command(self, request: LineMessagingRequest):
         for event in request.events:
             if event.message.text.strip().startswith("signals list"):
                 reply_message = await self.get_signals_reply_message()
