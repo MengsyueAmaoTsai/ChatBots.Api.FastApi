@@ -29,3 +29,6 @@ di = "python ./di.py"
 
 [tool.ruff]
 line-length = 120
+
+[tool.pytest.ini_options]
+pythonpath = "./src"
