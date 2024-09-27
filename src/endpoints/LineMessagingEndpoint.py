@@ -39,7 +39,7 @@ class LineMessagingEndpoint:
             )
 
             if reply_result.is_failure:
-                print(f"Failed to reply message: {reply_result.error}")
+                print(f"Failed to reply message: {reply_result.error.message}")
             else:
                 print(f"Replied message: {reply_message}")
 
