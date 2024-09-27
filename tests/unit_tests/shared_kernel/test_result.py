@@ -6,7 +6,7 @@ def test_result_success():
 
     assert result.is_success
     assert not result.is_failure
-    assert result.error is None
+    assert result.error == Error.null()
 
 
 def test_result_failure():

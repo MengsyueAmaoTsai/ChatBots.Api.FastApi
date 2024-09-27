@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 
 
@@ -12,23 +13,23 @@ class ErrorType(Enum):
     Unavailable = 503
 
 
+@dataclass(frozen=True)
 class Error:
-    def __init__(self, type: ErrorType, code: str, message: str) -> None:
-        self.__type = type
-        self.__code = code
-        self.__message = message
+    _type: ErrorType
+    _code: str
+    _message: str
 
     @property
     def type(self) -> ErrorType:
-        return self.__type
+        return self._type
 
     @property
     def code(self) -> str:
-        return self.__code
+        return self._code
 
     @property
     def message(self) -> str:
-        return self.__message
+        return self._message
 
     @staticmethod
     def null() -> "Error":
