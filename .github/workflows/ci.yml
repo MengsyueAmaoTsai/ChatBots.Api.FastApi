@@ -40,6 +40,7 @@ jobs:
     - name: Build and Tests
       run: |
         rye sync 
+        rye test
 
     - name: Build Docker Image
       run: |

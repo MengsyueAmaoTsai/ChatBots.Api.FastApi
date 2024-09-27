@@ -1,7 +1,7 @@
 [project]
-name = "chartbots-fastapi"
-version = "0.1.0"
-description = "Add your description here"
+name = "richillcapital-chat-bots"
+version = "1.0.0"
+description = ""
 authors = [
     { name = "Mengsyue Amao Tsai", email = "mengsyue.tsai@outlook.com" }
 ]
