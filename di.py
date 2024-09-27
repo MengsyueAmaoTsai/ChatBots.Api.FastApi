@@ -130,7 +130,7 @@ if __name__ == "__main__":
     service_provider = services.build_service_provider()
 
     mock_service = service_provider.get_required_service(IMockService)
-
     mock_service.mock()
+
     test_service = service_provider.get_required_service(ITestService)
     test_service.test()
