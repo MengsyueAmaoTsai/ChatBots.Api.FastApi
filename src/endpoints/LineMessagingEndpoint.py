@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from contracts import ApiRoutes, LineMessagingRequest
 from infrastructure.resources import ResourceService
-from line import LineMessagingClient
+from line.messaging import LineMessagingClient
 
 from .ApiTags import ApiTags
 
