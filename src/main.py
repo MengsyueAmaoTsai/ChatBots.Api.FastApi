@@ -1,5 +1,5 @@
-from domain import ILineBotService, LineBotService
-from domain.abstractions import IResourceService
+from domain import LineBotService
+from domain.abstractions import ILineBotService, IResourceService
 from hosting import WebApplication
 from infrastructure.resources import ResourceService
 from line.messaging import LineMessagingClient

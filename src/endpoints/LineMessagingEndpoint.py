@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from contracts import ApiRoutes, LineMessagingRequest, LineMessagingResponse
-from domain import ILineBotService
+from domain.abstractions import ILineBotService
 from services import HelpCommand, ICommand
 
 from .ApiTags import ApiTags
