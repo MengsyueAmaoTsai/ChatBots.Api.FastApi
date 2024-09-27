@@ -32,3 +32,4 @@ line-length = 120
 
 [tool.pytest.ini_options]
 pythonpath = "./src"
+python_files = "*Tests.py"
