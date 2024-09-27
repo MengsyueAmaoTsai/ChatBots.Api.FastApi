@@ -34,6 +34,7 @@ click==8.1.7
     # via uvicorn
 colorama==0.4.6
     # via click
+    # via pytest
     # via uvicorn
 deprecated==1.2.14
     # via line-bot-sdk
@@ -66,6 +67,8 @@ idna==3.10
     # via httpx
     # via requests
     # via yarl
+iniconfig==2.0.0
+    # via pytest
 jinja2==3.1.4
     # via fastapi
 line-bot-sdk==3.13.0
@@ -78,6 +81,10 @@ mdurl==0.1.2
 multidict==6.1.0
     # via aiohttp
     # via yarl
+packaging==24.1
+    # via pytest
+pluggy==1.5.0
+    # via pytest
 pydantic==2.9.2
     # via fastapi
     # via line-bot-sdk
@@ -85,6 +92,7 @@ pydantic-core==2.23.4
     # via pydantic
 pygments==2.18.0
     # via rich
+pytest==8.3.3
 python-dateutil==2.9.0.post0
     # via line-bot-sdk
 python-dotenv==1.0.1
@@ -97,6 +105,7 @@ requests==2.32.3
     # via line-bot-sdk
 rich==13.8.1
     # via typer
+ruff==0.6.8
 shellingham==1.5.4
     # via typer
 six==1.16.0
