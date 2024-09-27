@@ -5,6 +5,8 @@ from argparse import ArgumentParser
 import uvicorn
 from fastapi import FastAPI
 
+from dependency_injections import ServiceCollection
+from dependency_injections.abstractions import IServiceCollection, IServiceProvider
 from endpoints import LineMessagingEndpoint
 from middlewares import RequestDebuggingMiddleware
 from open_api import OpenApiConstants
@@ -18,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 class WebApplication:
-    def __init__(self):
-        self.__app = FastAPI(
+    def __init__(self, service_provider: IServiceProvider):
+        self._asgi_app = FastAPI(
             title=OpenApiConstants.TITLE,
             description=OpenApiConstants.DESCRIPTION,
             version=OpenApiConstants.VERSION,
@@ -27,10 +29,15 @@ class WebApplication:
             openapi_url=OpenApiConstants.SCHEMA_URL,
             docs_url=OpenApiConstants.URL,
         )
+        self._service_provider = service_provider
 
     @property
-    def app(self):
-        return self.__app
+    def asgi_app(self):
+        return self._asgi_app
+
+    @property
+    def services(self) -> IServiceProvider:
+        return self._service_provider
 
     @staticmethod
     def create_builder():
@@ -52,7 +59,7 @@ class WebApplication:
         logger.info(f"Content root path: {content_root_path}")
 
         uvicorn.run(
-            "main:app.app",
+            "main:app.asgi_app",
             host=parsed_args.host,
             port=parsed_args.port,
             reload=parsed_args.watch,
@@ -63,19 +70,27 @@ class WebApplication:
         )
 
     def use_request_debugging(self):
-        self.__app.add_middleware(RequestDebuggingMiddleware)
+        self._asgi_app.add_middleware(RequestDebuggingMiddleware)
 
     def map_endpoints(self):
-        endpoints = [LineMessagingEndpoint()]
+        endpoint_types = [LineMessagingEndpoint]
 
-        for endpoint in endpoints:
-            self.__app.include_router(endpoint.router)
+        for type in endpoint_types:
+            instance = self._service_provider.get_required_service(type)
+            print("Mapping endpoint:", instance.__class__.__name__)
+            self._asgi_app.include_router(instance.router)
 
 
 class WebApplicationBuilder:
     def __init__(self):
-        pass
+        self._service_collection = ServiceCollection()
+
+    @property
+    def services(self) -> IServiceCollection:
+        return self._service_collection
 
     def build(self):
-        web_app = WebApplication()
+        provider = self._service_collection.build_service_provider()
+
+        web_app = WebApplication(provider)
         return web_app
