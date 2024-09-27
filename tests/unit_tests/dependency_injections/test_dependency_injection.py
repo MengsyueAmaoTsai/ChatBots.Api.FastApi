@@ -1,7 +1,7 @@
 from dependency_injections import ServiceDescriptor, ServiceLifetime
 
 
-def test_di():
+def test_service_descriptor():
     descriptor = ServiceDescriptor(str, str, ServiceLifetime.Singleton)
 
     assert descriptor.service_type is str
