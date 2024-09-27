@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from contracts import ApiRoutes, SendReplyMessageRequest
 from line import LineMessagingClient
+from resources import ResourceService
 
 from .ApiTags import ApiTags
 
@@ -26,12 +27,32 @@ class LineMessagingEndpoint:
             channel_secret=self.CHANNEL_SECRET,
         )
 
+        self.__resource_service = ResourceService()
+
     async def send_line_command(self, request: SendReplyMessageRequest):
         """"""
-        for event in request.events:
-            text = event.message.text
-            reply_token = event.reply_token
-            user_id = event.source.user_id
-            print(f"Received message from user: {user_id} - {text}")
 
-            await self.__messaging_service.send_reply_message(reply_token, text)
+        for event in request.events:
+            received_message = event.message.text
+
+            if received_message.strip() == "signals list":
+                reply_message = await self.get_signals_reply_message()
+                await self.__messaging_service.send_reply_message(
+                    reply_token=event.reply_token, message=reply_message
+                )
+
+        return {
+            "message": "OK",
+            "status": 200,
+        }
+
+    async def get_signals_reply_message(self) -> str:
+        signals = await self.__resource_service.list_signals()
+        signals = sorted(signals, key=lambda x: x.created_time_utc, reverse=True)
+        signals = signals[:3]
+        reply_message = "Signals list:\n"
+
+        for signal in signals:
+            reply_message += f"[{signal.time}] {signal.source_id} {signal.origin} {signal.trade_type} {signal.quantity} {signal.symbol} @ {signal.latency}\n"
+
+        return reply_message
