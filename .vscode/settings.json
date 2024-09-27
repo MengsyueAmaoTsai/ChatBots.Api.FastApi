@@ -6,6 +6,7 @@
     "httpx",
     "pydantic",
     "starlette",
+    "usecases",
     "uvicorn"
   ]
 }
