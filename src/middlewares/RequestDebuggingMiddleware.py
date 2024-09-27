@@ -9,11 +9,11 @@ from starlette.types import ASGIApp
 
 
 class RequestDebuggingMiddleware(BaseHTTPMiddleware):
-    anonymous_user_name = "Anonymous"
-    no_headers_content = "No headers"
-    no_query_string_content = "No query string"
-    no_request_body_content = "No request body"
-    no_response_body_content = "No response body"
+    ANONYMOUS_USER_NAME = "Anonymous"
+    NO_HEADERS = "No headers"
+    NO_QUERY_STRING = "No query string"
+    NO_REQUEST_BODY = "No request body"
+    NO_RESPONSE_BODY = "No response body"
 
     def __init__(self, app: ASGIApp):
         super().__init__(app)
@@ -29,14 +29,14 @@ class RequestDebuggingMiddleware(BaseHTTPMiddleware):
         try:
             request_body_bytes = await request.body()
             request_body_info = (
-                request_body_bytes.decode("utf-8") or self.no_request_body_content
+                request_body_bytes.decode("utf-8") or self.NO_REQUEST_BODY
             )
         except Exception:
             request_body_info = ""
 
         start_time = time.time()
         print(
-            f"Incoming request - {method} {path} from {self.anonymous_user_name}@{remote_ip_address}"
+            f"Incoming request - {method} {path} from {self.ANONYMOUS_USER_NAME}@{remote_ip_address}"
         )
 
         response = await call_next(request)
@@ -70,13 +70,13 @@ class RequestDebuggingMiddleware(BaseHTTPMiddleware):
         request_headers_info = (
             "\n".join(f"{key}: {value}" for key, value in request_headers)
             if request_headers
-            else self.no_headers_content
+            else self.NO_HEADERS
         )
 
         response_headers_info = (
             "\n".join(f"{key}: {value}" for key, value in response_headers)
             if response_headers
-            else self.no_headers_content
+            else self.NO_HEADERS
         )
 
         response_body = b""
@@ -110,11 +110,11 @@ class RequestDebuggingMiddleware(BaseHTTPMiddleware):
         log_message = (
             "----- Request Details -----\n"
             f"Request Headers:\n{request_headers_info}\n"
-            f"Query String: {query_string if query_string else self.no_query_string_content}\n"
-            f"Request Body:\n{request_body_info if request_body_info else self.no_request_body_content}\n"
+            f"Query String: {query_string if query_string else self.NO_QUERY_STRING}\n"
+            f"Request Body:\n{request_body_info if request_body_info else self.NO_REQUEST_BODY}\n"
             "----- Response Details -----\n"
             f"Response Headers:\n{response_headers_info}\n"
-            f"Response Body:\n{response_body_info if response_body_info else self.no_response_body_content}\n"
+            f"Response Body:\n{response_body_info if response_body_info else self.NO_RESPONSE_BODY}\n"
         )
 
         print(log_message)
