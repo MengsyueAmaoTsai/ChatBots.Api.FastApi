@@ -7,6 +7,9 @@ from .ApiTags import ApiTags
 
 
 class LineMessagingEndpoint:
+    CHANNEL_ACCESS_TOKEN = "MpUtsRPDJZJFf97uu2Xeby8F0aH0IQw6wPd8ovdmAUMoqPGX8IOcZaiixNCY5scbQCkAKf6qh3r+wII3ry1VojhZHxFj0ZcstUZq/52tKILB8GA4eQB+Q5+GjM2k+aBn8fDU5eUS7ykZhBQwjC3WfQdB04t89/1O/w1cDnyilFU="
+    CHANNEL_SECRET = "059dc70ee4cae01e3df05ac5813ed971"
+
     def __init__(self) -> None:
         self.router = APIRouter()
         self.router.add_api_route(
@@ -19,8 +22,8 @@ class LineMessagingEndpoint:
 
         ## services
         self.__messaging_service = LineMessagingClient(
-            channel_access_token="MpUtsRPDJZJFf97uu2Xeby8F0aH0IQw6wPd8ovdmAUMoqPGX8IOcZaiixNCY5scbQCkAKf6qh3r+wII3ry1VojhZHxFj0ZcstUZq/52tKILB8GA4eQB+Q5+GjM2k+aBn8fDU5eUS7ykZhBQwjC3WfQdB04t89/1O/w1cDnyilFU=",
-            channel_secret="059dc70ee4cae01e3df05ac5813ed971",
+            channel_access_token=self.CHANNEL_ACCESS_TOKEN,
+            channel_secret=self.CHANNEL_SECRET,
         )
 
     async def send_line_command(self, request: SendReplyMessageRequest):
