@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from contracts import ApiRoutes, LineMessagingRequest, LineMessagingResponse
 from domain.abstractions import ILineBotService
-from services import HelpCommand, ICommand
+from services import CreateUserCommand, GetUserCommand, HelpCommand, ICommand, ListUsersCommand
 
 from .ApiTags import ApiTags
 
@@ -50,8 +50,21 @@ class LineMessagingEndpoint:
         return text.strip().startswith("/rc ")
 
     def map_to_command(self, text: str) -> ICommand:
+        ## Get help
         if text == "-h" or text == "--help":
             return HelpCommand()
+
+        ## Create new user
+        if text.startswith("new user"):
+            return CreateUserCommand()
+
+        ## List users
+        if text == "users list":
+            return ListUsersCommand()
+
+        ## Get user by id
+        if text.startswith("user -id"):
+            return GetUserCommand()
 
         raise Exception(f"Invalid command: {text}")
 
