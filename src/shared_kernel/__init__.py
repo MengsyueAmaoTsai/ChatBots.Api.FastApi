@@ -1,4 +1,4 @@
 from .Error import Error, ErrorType
-from .Result import Result
+from .Result import ResultT
 
-__all__ = ["Error", "ErrorType", "Result"]
+__all__ = ["Error", "ErrorType", "ResultT"]

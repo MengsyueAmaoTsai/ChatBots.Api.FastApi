@@ -1,32 +1,15 @@
-from dataclasses import dataclass
-
 from .Error import Error
 
 
-@dataclass(frozen=True)
-class Result:
-    _is_success: bool
-    _error: Error
+class ResultT[TValue]:
+    is_success: bool
+    error: Error
+    value: TValue
 
-    @classmethod
-    def success(cls) -> "Result":
-        return cls(True, Error.null())
+    @staticmethod
+    def failure(error: Error) -> "ResultT[TValue]":
+        raise NotImplementedError()
 
-    @classmethod
-    def failure(cls, error: Error) -> "Result":
-        return cls(False, error)
-
-    @property
-    def is_success(self) -> bool:
-        return self._is_success
-
-    @property
-    def is_failure(self) -> bool:
-        return not self._is_success
-
-    @property
-    def error(self) -> Error:
-        if self.is_success:
-            return Error.null()
-
-        return self._error
+    @staticmethod
+    def success(value: TValue) -> "ResultT[TValue]":
+        raise NotImplementedError()
