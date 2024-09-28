@@ -23,13 +23,14 @@ class LineMessagingEndpoint:
         self._line_bot_service = line_bot_service
 
     async def send_line_command(self, request: LineMessagingRequest) -> LineMessagingResponse:
+        messages: list[str] = []
         for event in request.events:
             if not self._is_valid_command(event.message.text):
                 continue
 
             command_text = event.message.text.strip().replace("/rc ", "")
+            reply_message = await self.send_command(command_text)
 
-            reply_message = f"You sent the following command: {command_text}"
             reply_result = await self._line_bot_service.reply_text_message(
                 reply_token=event.reply_token, text_message=reply_message
             )
@@ -37,7 +38,14 @@ class LineMessagingEndpoint:
             if reply_result.is_failure:
                 print(f"Failed to reply message: {reply_result.error.message}")
 
-        return LineMessagingResponse(content="OK")
+            messages.append(reply_message)
+
+        return LineMessagingResponse(messages=messages)
 
     def _is_valid_command(self, text: str) -> bool:
         return text.strip().startswith("/rc ")
+
+    async def send_command(self, text_command: str) -> str:
+        reply_message = f"You sent the following command: {text_command}"
+
+        return reply_message
