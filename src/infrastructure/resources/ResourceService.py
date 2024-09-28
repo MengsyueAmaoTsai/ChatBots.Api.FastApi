@@ -33,7 +33,7 @@ class ResourceService:
             case 401:
                 error_type = ErrorType.Unauthorized
             case 403:
-                error_type = ErrorType.Forbidden
+                error_type = ErrorType.AccessDenied
             case 404:
                 error_type = ErrorType.NotFound
             case 409:
