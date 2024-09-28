@@ -13,3 +13,16 @@ class ResultT[TValue]:
     @staticmethod
     def success(value: TValue) -> "ResultT[TValue]":
         raise NotImplementedError()
+
+
+class Result:
+    is_success: bool
+    error: Error
+
+    @staticmethod
+    def failure(error: Error) -> "Result":
+        raise NotImplementedError()
+
+    @staticmethod
+    def success() -> "Result":
+        raise NotImplementedError()

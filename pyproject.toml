@@ -23,7 +23,7 @@ dev-dependencies = [
 [tool.rye.scripts]
 dev = "python ./src/main.py --environment Development --watch"
 start = "python ./src/main.py --host 0.0.0.0 --port 10004 --environment Production"
-lint = "ruff check ."
+lint = "ruff check ./src"
 unit_test = "pytest ./tests"
 di = "python ./di.py"
 
