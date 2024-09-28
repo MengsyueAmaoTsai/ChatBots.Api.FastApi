@@ -1,7 +1,13 @@
-class ICommand[TResult]: ...
+class ICommandBase: ...
 
 
-class ICommandHandler[TCommand, TResult]:
+class ICommand[TResult](ICommandBase): ...
+
+
+class ICommandHandlerBase: ...
+
+
+class ICommandHandler[TCommand, TResult](ICommandHandlerBase):
     async def handle(self, command: TCommand) -> TResult:
         raise NotImplementedError()
 
