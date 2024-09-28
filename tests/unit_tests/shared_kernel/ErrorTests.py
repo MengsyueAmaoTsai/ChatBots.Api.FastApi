@@ -5,6 +5,13 @@ ERROR_MESSAGE = "error_message"
 
 
 class TestError:
+    def test_null_should_return_null_error(self) -> None:
+        null_error = Error.null()
+
+        assert null_error.type == ErrorType.Null
+        assert null_error.code == "NoError"
+        assert null_error.message == str()
+
     def test_factory_methods_should_create_error(self) -> None:
         error = Error.create(ErrorType.Validation, ERROR_CODE, "error_message")
 

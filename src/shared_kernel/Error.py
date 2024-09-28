@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
@@ -13,11 +14,17 @@ class ErrorType(Enum):
     Unavailable = 503
 
 
+@dataclass(frozen=True)
 class Error:
-    def __init__(self, type: ErrorType, code: str, message: str):
-        self.type = type
-        self.code = code
-        self.message = message
+    _NO_ERROR = "NoError"
+
+    type: ErrorType
+    code: str
+    message: str
+
+    @staticmethod
+    def null() -> "Error":
+        return Error(ErrorType.Null, Error._NO_ERROR, str())
 
     @staticmethod
     def create(type: ErrorType, code: str, message: str) -> "Error":

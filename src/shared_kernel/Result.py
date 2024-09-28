@@ -1,28 +1,64 @@
+from dataclasses import dataclass
+from typing import Optional
+
 from .Error import Error
 
 
+@dataclass(frozen=True)
 class ResultT[TValue]:
-    is_success: bool
-    error: Error
-    value: TValue
+    _is_success: bool
+    _error: Error
+    _value: Optional[TValue]
+
+    @property
+    def is_failure(self) -> bool:
+        return not self._is_success
+
+    @property
+    def is_success(self) -> bool:
+        return self._is_success
+
+    @property
+    def error(self) -> Error:
+        return self._error
+
+    @property
+    def value(self) -> TValue:
+        if self._value is None:
+            raise ValueError("Value is None")
+
+        return self._value
 
     @staticmethod
     def failure(error: Error) -> "ResultT[TValue]":
-        raise NotImplementedError()
+        return ResultT[TValue](False, error, None)
 
     @staticmethod
     def success(value: TValue) -> "ResultT[TValue]":
-        raise NotImplementedError()
+        return ResultT[TValue](True, Error.null(), value)
 
 
+@dataclass(frozen=True)
 class Result:
-    is_success: bool
-    error: Error
+    _is_success: bool
+    _error: Error
+
+    @property
+    def is_success(self) -> bool:
+        return self._is_success
+
+    @property
+    def is_failure(self) -> bool:
+        return not self._is_success
+
+    @property
+    def error(self) -> Error:
+        raise NotImplementedError
 
     @staticmethod
     def failure(error: Error) -> "Result":
-        raise NotImplementedError()
+        return Result(False, error)
 
     @staticmethod
     def success() -> "Result":
-        raise NotImplementedError()
+        return Result(True, Error.null())
