@@ -61,15 +61,10 @@ class LineMessagingEndpoint:
         signals --id <id>: Show signal details
         """
 
-        if (text_command == "-h") or (text_command == "help"):
-            return ResultT[str].success(await self.reply_help())
+        if text_command == "-v" or text_command == "--version":
+            return ResultT[str].success("Richill Capital Chat Bots Api Version: 1.0.0")
+
+        if text_command == "-h" or text_command == "--help":
+            return ResultT[str].success("Help")
 
         return ResultT[str].failure(Error.invalid(message=f"Invalid command: {text_command}"))
-
-    async def reply_help(self) -> str:
-        """"""
-        help_message = ""
-        help_message += "Available commands:\n"
-        help_message += "--help or -h: Show help message\n"
-
-        return help_message
