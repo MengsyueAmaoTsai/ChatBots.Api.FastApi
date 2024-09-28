@@ -1,7 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from contracts import ApiRoutes, LineMessagingRequest, LineMessagingResponse
 from domain.abstractions import ILineBotService
+from shared_kernel import Error
+from shared_kernel.Result import ResultT
 
 from .ApiTags import ApiTags
 
@@ -29,7 +31,12 @@ class LineMessagingEndpoint:
                 continue
 
             command_text = event.message.text.strip().replace("/rc ", "")
-            reply_message = await self.send_command(command_text)
+            handle_result = await self.send_command(command_text)
+
+            if handle_result.is_failure:
+                raise HTTPException(status_code=400, detail=handle_result.error.message)
+
+            reply_message = handle_result.value
 
             reply_result = await self._line_bot_service.reply_text_message(
                 reply_token=event.reply_token, text_message=reply_message
@@ -45,7 +52,24 @@ class LineMessagingEndpoint:
     def _is_valid_command(self, text: str) -> bool:
         return text.strip().startswith("/rc ")
 
-    async def send_command(self, text_command: str) -> str:
-        reply_message = f"You sent the following command: {text_command}"
+    async def send_command(self, text_command: str) -> ResultT[str]:
+        """
+        TODO COMMANDS
+        new -h: Show help message
+        signals -h: Show help message
+        signals list: Show signals list
+        signals --id <id>: Show signal details
+        """
 
-        return reply_message
+        if (text_command == "-h") or (text_command == "help"):
+            return ResultT[str].success(await self.reply_help())
+
+        return ResultT[str].failure(Error.invalid(message=f"Invalid command: {text_command}"))
+
+    async def reply_help(self) -> str:
+        """"""
+        help_message = ""
+        help_message += "Available commands:\n"
+        help_message += "--help or -h: Show help message\n"
+
+        return help_message
