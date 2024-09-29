@@ -13,6 +13,15 @@ class Entity[TEntityId](ABC):
     def id(self) -> TEntityId:
         return self._id
 
+    def clear_domain_events(self) -> None:
+        self._domain_events.clear()
+
+    def register_domain_event(self, domain_event: IDomainEvent) -> None:
+        self._domain_events.append(domain_event)
+
+    def get_domain_events(self) -> list[IDomainEvent]:
+        return self._domain_events
+
     def __eq__(self, value: object) -> bool:
         if value is None:
             return False
