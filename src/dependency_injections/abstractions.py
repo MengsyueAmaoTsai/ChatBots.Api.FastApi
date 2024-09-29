@@ -1,9 +1,13 @@
 from typing import Protocol, TypeVar, overload
 
+from .ServiceDescriptor import ServiceDescriptor
+
 TImplementation = TypeVar("TImplementation")
 
 
 class IServiceCollection(Protocol):
+    def add(self, service_descriptor: ServiceDescriptor) -> "IServiceCollection": ...
+
     @overload
     def add_transient(self, service_type: type) -> "IServiceCollection": ...
 

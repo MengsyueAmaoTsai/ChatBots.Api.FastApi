@@ -13,6 +13,10 @@ class ServiceCollection(IServiceCollection):
     def __init__(self) -> None:
         self._service_descriptors: list[ServiceDescriptor] = []
 
+    def add(self, service_descriptor: ServiceDescriptor) -> IServiceCollection:
+        self._service_descriptors.append(service_descriptor)
+        return self
+
     @overload
     def add_transient(self, service_type: type) -> IServiceCollection: ...
 
