@@ -1,6 +1,7 @@
 from typing import Optional, overload
 
 from endpoints import LineMessagingEndpoint
+from usecases import CommandSender, GetUserCommandHandler, ICommandSender
 
 from .abstractions import IServiceCollection, IServiceProvider
 from .ServiceDescriptor import ServiceDescriptor
@@ -74,5 +75,15 @@ class ServiceCollection(IServiceCollection):
 
         for endpoint in endpoint_types:
             self.add_transient(endpoint)
+
+        return self
+
+    def add_commands(self) -> "IServiceCollection":
+        self.add_singleton(ICommandSender, CommandSender)
+
+        command_handler_types = [GetUserCommandHandler]
+
+        for command_handler in command_handler_types:
+            self.add_scoped(command_handler)
 
         return self

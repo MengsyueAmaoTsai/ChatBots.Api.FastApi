@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from contracts import ApiRoutes, LineMessagingRequest, LineMessagingResponse
 from domain.abstractions import ILineBotService
+from endpoints.Endpoint import ActionResult
 from shared_kernel import Error
 from shared_kernel.Result import ResultT
 
@@ -16,7 +17,7 @@ class LineMessagingEndpoint:
         self.router = APIRouter()
         self.router.add_api_route(
             path=ApiRoutes.LINE_MESSAGING,
-            endpoint=self.send_line_command,
+            endpoint=self.handle,
             methods=["POST"],
             response_model=LineMessagingResponse,
             tags=[ApiTags.LineMessaging],
@@ -24,7 +25,7 @@ class LineMessagingEndpoint:
 
         self._line_bot_service = line_bot_service
 
-    async def send_line_command(self, request: LineMessagingRequest) -> LineMessagingResponse:
+    async def handle(self, request: LineMessagingRequest) -> ActionResult[LineMessagingResponse]:
         messages: list[str] = []
         for event in request.events:
             if not self._is_valid_command(event.message.text):
