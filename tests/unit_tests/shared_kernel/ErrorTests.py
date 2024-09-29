@@ -39,14 +39,14 @@ class TestError:
         assert unauthorized_error2.code == ErrorType.Unauthorized.name
         assert unauthorized_error2.message == ERROR_MESSAGE
 
-        access_denied_error = Error.access_denied(ERROR_CODE, ERROR_MESSAGE)
-        assert access_denied_error.type == ErrorType.AccessDenied
+        access_denied_error = Error.forbidden(ERROR_CODE, ERROR_MESSAGE)
+        assert access_denied_error.type == ErrorType.Forbidden
         assert access_denied_error.code == ERROR_CODE
         assert access_denied_error.message == ERROR_MESSAGE
 
-        access_denied_error2 = Error.access_denied(message=ERROR_MESSAGE)
-        assert access_denied_error2.type == ErrorType.AccessDenied
-        assert access_denied_error2.code == ErrorType.AccessDenied.name
+        access_denied_error2 = Error.forbidden(message=ERROR_MESSAGE)
+        assert access_denied_error2.type == ErrorType.Forbidden
+        assert access_denied_error2.code == ErrorType.Forbidden.name
         assert access_denied_error2.message == ERROR_MESSAGE
 
         not_found_error = Error.not_found(ERROR_CODE, ERROR_MESSAGE)

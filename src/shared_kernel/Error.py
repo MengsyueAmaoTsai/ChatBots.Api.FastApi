@@ -7,7 +7,7 @@ class ErrorType(Enum):
     Null = 0
     Validation = 400
     Unauthorized = 401
-    AccessDenied = 403
+    Forbidden = 403
     NotFound = 404
     Conflict = 409
     Unexpected = 500
@@ -41,8 +41,8 @@ class Error:
         return Error(error_type, code or error_type.name, message or str())
 
     @staticmethod
-    def access_denied(code: Optional[str] = None, message: Optional[str] = None) -> "Error":
-        error_type = ErrorType.AccessDenied
+    def forbidden(code: Optional[str] = None, message: Optional[str] = None) -> "Error":
+        error_type = ErrorType.Forbidden
         return Error(error_type, code or error_type.name, message or str())
 
     @staticmethod
