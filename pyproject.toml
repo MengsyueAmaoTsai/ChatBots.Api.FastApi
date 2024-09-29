@@ -18,6 +18,8 @@ virtual = true
 dev-dependencies = [
     "pytest>=8.3.3",
     "ruff>=0.6.8",
+    "sure>=2.0.1",
+    "assertpy>=1.1",
 ]
 
 [tool.rye.scripts]
@@ -33,3 +35,5 @@ line-length = 120
 [tool.pytest.ini_options]
 pythonpath = "./src"
 python_files = "*Tests.py"
+python_classes = "*Tests"
+python_functions = "test_*"
