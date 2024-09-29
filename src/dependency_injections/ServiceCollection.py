@@ -13,9 +13,22 @@ class ServiceCollection(IServiceCollection):
     def __init__(self) -> None:
         self._service_descriptors: list[ServiceDescriptor] = []
 
+    @property
+    def count(self) -> int:
+        return len(self._service_descriptors)
+
     def add(self, service_descriptor: ServiceDescriptor) -> IServiceCollection:
         self._service_descriptors.append(service_descriptor)
         return self
+
+    def clear(self) -> None:
+        self._service_descriptors.clear()
+
+    def contains(self, service_descriptor: ServiceDescriptor) -> bool:
+        return service_descriptor in self._service_descriptors
+
+    def remove(self, service_descriptor: ServiceDescriptor) -> None:
+        self._service_descriptors.remove(service_descriptor)
 
     @overload
     def add_transient(self, service_type: type) -> IServiceCollection: ...
@@ -91,3 +104,6 @@ class ServiceCollection(IServiceCollection):
             self.add_scoped(command_handler)
 
         return self
+
+    def __getitem__(self, index: int) -> ServiceDescriptor:
+        return self._service_descriptors[index]
