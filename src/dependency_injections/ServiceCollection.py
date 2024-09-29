@@ -79,7 +79,7 @@ class ServiceCollection(IServiceCollection):
         return self
 
     def add_commands(self) -> "IServiceCollection":
-        self.add_singleton(ICommandSender, CommandSender)
+        self.add_scoped(ICommandSender, CommandSender)
 
         command_handler_types = [GetUserCommandHandler]
 
