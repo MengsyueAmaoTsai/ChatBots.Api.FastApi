@@ -1,9 +1,20 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from .abstractions import IDomainEvent
 
 
-class Entity[TEntityId](ABC):
+class IEntity(ABC):
+    @abstractmethod
+    def clear_domain_events(self) -> None: ...
+
+    @abstractmethod
+    def register_domain_event(self, domain_event: IDomainEvent) -> None: ...
+
+    @abstractmethod
+    def get_domain_events(self) -> list[IDomainEvent]: ...
+
+
+class Entity[TEntityId](IEntity):
     def __init__(self, id: TEntityId) -> None:
         self._domain_events: list[IDomainEvent] = []
 
