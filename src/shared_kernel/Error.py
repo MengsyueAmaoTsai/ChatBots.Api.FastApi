@@ -125,3 +125,12 @@ class Error:
         if len(args) == 1:
             return Error(ErrorType.Unavailable, ErrorType.Unavailable.name, args[0])
         return Error(ErrorType.Unavailable, args[0], args[1])
+
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, Error):
+            return False
+
+        return self.type == value.type and self.code == value.code
+
+    def __ne__(self, value: object) -> bool:
+        return not self.__eq__(value)
