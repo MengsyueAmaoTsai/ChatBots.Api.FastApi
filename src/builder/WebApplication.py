@@ -6,7 +6,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from configuration import ConfigurationManager
-from dependency_injection import ServiceDescriptor
+from dependency_injection import ServiceCollection, ServiceDescriptor
 from hosting import BootstrapHostBuilder, HostApplicationBuilder, HostApplicationBuilderSettings
 
 from .WebApplicationOptions import WebApplicationOptions
@@ -31,6 +31,39 @@ class WebApplicationBuilder:
 
         self._generic_web_host_service_descriptor = self.initialize_hosting(bootstrap_host_builder)
 
+    @property
+    def environment(self) -> object:
+        raise NotImplementedError()
+
+    @property
+    def services(self) -> ServiceCollection:
+        return self._host_application_builder.services
+
+    @property
+    def configuration(self) -> ConfigurationManager:
+        raise NotImplementedError()
+
+    @property
+    def logging(self) -> object:
+        raise NotImplementedError()
+
+    @property
+    def metrics(self) -> object:
+        raise NotImplementedError()
+
+    @property
+    def web_host(self) -> object:
+        raise NotImplementedError()
+
+    @property
+    def host(self) -> object:
+        raise NotImplementedError()
+
+    def build(self) -> "WebApplication":
+        self._host_application_builder.services.add(self._generic_web_host_service_descriptor)
+        self._built_application = WebApplication(self._host_application_builder.build())
+        return self._built_application
+
     def initialize_hosting(self, builder: BootstrapHostBuilder) -> ServiceDescriptor:
         generic_web_host_service_descriptor = builder.run_default_callbacks()
 
@@ -38,11 +71,6 @@ class WebApplicationBuilder:
         # self._environment = web_host_context.hosting_environment
 
         return generic_web_host_service_descriptor
-
-    def build(self) -> "WebApplication":
-        self._host_application_builder.services.add(self._generic_web_host_service_descriptor)
-        self._built_application = WebApplication(self._host_application_builder.build())
-        return self._built_application
 
 
 class WebApplication:
