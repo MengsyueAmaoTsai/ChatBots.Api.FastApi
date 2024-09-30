@@ -82,6 +82,10 @@ class WebApplication:
     def asgi_app(self) -> FastAPI:
         return self._asgi_app
 
+    @property
+    def services(self) -> "ServiceProvider":
+        return self._host.services
+
     @staticmethod
     def create_builder() -> WebApplicationBuilder:
         builder = WebApplicationBuilder(WebApplicationOptions())

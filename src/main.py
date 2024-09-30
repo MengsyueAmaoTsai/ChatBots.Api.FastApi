@@ -19,5 +19,8 @@ for endpoint in endpoint_types:
 
 app = builder.build()
 
+## Map endpoints
+
+
 if __name__ == "__main__":
     app.run()
