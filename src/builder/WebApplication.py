@@ -1,10 +1,12 @@
 import os
 from argparse import ArgumentParser
+from typing import Optional
 
 import uvicorn
 from fastapi import FastAPI
 
 from configuration import ConfigurationManager
+from dependency_injection import ServiceDescriptor
 from hosting import BootstrapHostBuilder, HostApplicationBuilder, HostApplicationBuilderSettings
 
 from .WebApplicationOptions import WebApplicationOptions
@@ -12,26 +14,40 @@ from .WebApplicationOptions import WebApplicationOptions
 
 class WebApplicationBuilder:
     def __init__(self, options: WebApplicationOptions):
+        self._built_application: Optional[WebApplication] = None
+
         configuration = ConfigurationManager()
 
-        self._hostApplicationBuilder = HostApplicationBuilder(HostApplicationBuilderSettings())
+        self._host_application_builder = HostApplicationBuilder(HostApplicationBuilderSettings())
 
         if options.web_root_path is not None:
             pass
 
-        bootstrap_host_builder = BootstrapHostBuilder(self._hostApplicationBuilder)
+        bootstrap_host_builder = BootstrapHostBuilder(self._host_application_builder)
 
         # if configure_defaults is not None:
 
         # bootstrap_host_builder.configure_web_host_defaults()
 
+        self._generic_web_host_service_descriptor = self.initialize_hosting(bootstrap_host_builder)
+
+    def initialize_hosting(self, builder: BootstrapHostBuilder) -> ServiceDescriptor:
+        generic_web_host_service_descriptor = builder.run_default_callbacks()
+
+        # web_host_context =
+        # self._environment = web_host_context.hosting_environment
+
+        return generic_web_host_service_descriptor
+
     def build(self) -> "WebApplication":
-        app = WebApplication()
-        return app
+        self._host_application_builder.services.add(self._generic_web_host_service_descriptor)
+        self._built_application = WebApplication(self._host_application_builder.build())
+        return self._built_application
 
 
 class WebApplication:
-    def __init__(self) -> None:
+    def __init__(self, host: object) -> None:
+        self._host = host
         self._asgi_app = FastAPI()
 
     @property

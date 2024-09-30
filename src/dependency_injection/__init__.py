@@ -10,7 +10,9 @@ class ServiceLifetime(Enum):
 class ServiceDescriptor: ...
 
 
-class ServiceCollection: ...
+class ServiceCollection:
+    def add(self, descriptor: ServiceDescriptor) -> "ServiceCollection":
+        return self
 
 
 class ServiceProvider: ...
