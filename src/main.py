@@ -14,8 +14,8 @@ builder.services.add_scoped(ICommandSender, CommandSender)
 ## Add Presentation Services
 endpoint_types = [LineMessagingEndpoint]
 
-# for endpoint in endpoint_types:
-#     builder.services.add_scoped(endpoint)
+for endpoint in endpoint_types:
+    builder.services.add_scoped(endpoint, endpoint)
 
 app = builder.build()
 
