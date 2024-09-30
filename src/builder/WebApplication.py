@@ -4,8 +4,27 @@ from argparse import ArgumentParser
 import uvicorn
 from fastapi import FastAPI
 
+from configuration import ConfigurationManager
+from hosting import BootstrapHostBuilder, HostApplicationBuilder, HostApplicationBuilderSettings
+
+from .WebApplicationOptions import WebApplicationOptions
+
 
 class WebApplicationBuilder:
+    def __init__(self, options: WebApplicationOptions):
+        configuration = ConfigurationManager()
+
+        self._hostApplicationBuilder = HostApplicationBuilder(HostApplicationBuilderSettings())
+
+        if options.web_root_path is not None:
+            pass
+
+        bootstrap_host_builder = BootstrapHostBuilder(self._hostApplicationBuilder)
+
+        # if configure_defaults is not None:
+
+        # bootstrap_host_builder.configure_web_host_defaults()
+
     def build(self) -> "WebApplication":
         app = WebApplication()
         return app
@@ -21,7 +40,7 @@ class WebApplication:
 
     @staticmethod
     def create_builder() -> WebApplicationBuilder:
-        builder = WebApplicationBuilder()
+        builder = WebApplicationBuilder(WebApplicationOptions())
         return builder
 
     def run(self) -> None:
