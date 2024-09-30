@@ -1,4 +1,6 @@
+from collections.abc import Callable
 from enum import Enum
+from typing import Any, Optional, overload
 
 
 class ServiceLifetime(Enum):
@@ -7,7 +9,57 @@ class ServiceLifetime(Enum):
     Transient = 3
 
 
-class ServiceDescriptor: ...
+class ServiceDescriptor:
+    @overload
+    def __init__(self, service_type: type, implementation_type: type, lifetime: ServiceLifetime) -> None: ...
+
+    @overload
+    def __init__(
+        self, service_type: type, service_key: Optional[object], implementation_type: type, lifetime: ServiceLifetime
+    ) -> None: ...
+
+    @overload
+    def __init__(self, service_type: type, instance: object) -> None: ...
+
+    @overload
+    def __init__(self, service_type: type, service_key: Optional[object], instance: object) -> None: ...
+
+    @overload
+    def __init__(
+        self, service_type: type, factory: Callable[["ServiceProvider"], object], lifetime: ServiceLifetime
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        service_type: type,
+        service_key: Optional[object],
+        factory: Callable[["ServiceProvider", Optional[object]], object],
+    ) -> None: ...
+
+    @overload
+    def __init__(self, service_type: type, service_key: Optional[object], lifetime: ServiceLifetime) -> None: ...
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self._service_type = args[0]
+        self._lifetime = ServiceLifetime.Singleton if len(args) == 2 else args[-1]
+
+    @property
+    def lifetime(self) -> ServiceLifetime:
+        return self._lifetime
+
+    @property
+    def service_key(self) -> Optional[object]:
+        raise NotImplementedError()
+
+    @property
+    def service_type(self) -> type:
+        return self._service_type
+
+    def __repr__(self) -> str:
+        text = ""
+        text += f"ServiceType: {self._service_type.__name__}, Lifetime: {self.lifetime}"
+        return text
 
 
 class ServiceCollection:
@@ -20,6 +72,7 @@ class ServiceCollection:
 
     def add(self, descriptor: ServiceDescriptor) -> "ServiceCollection":
         self._descriptors.append(descriptor)
+        print(f"Added {descriptor} to services")
         return self
 
     def remove(self, descriptor: ServiceDescriptor) -> "ServiceCollection":
@@ -47,6 +100,15 @@ class ServiceCollection:
     def copy_to(self, array: list[ServiceDescriptor], array_index: int) -> None:
         for index, descriptor in enumerate(self._descriptors):
             array[array_index + index] = descriptor
+
+    def add_scoped(self, service_type: type, implementation_type: type) -> "ServiceCollection":
+        self._add(service_type, implementation_type, ServiceLifetime.Scoped)
+        return self
+
+    def _add(self, service_type: type, implementation_type: type, lifetime: ServiceLifetime) -> "ServiceCollection":
+        descriptor = ServiceDescriptor(service_type, implementation_type, lifetime)
+        self.add(descriptor)
+        return self
 
 
 class ServiceProvider: ...

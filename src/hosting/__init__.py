@@ -34,8 +34,7 @@ class BootstrapHostBuilder:
     def __init__(self, builder: HostApplicationBuilder) -> None:
         self._builder = builder
 
-    def run_default_callbacks(self) -> "ServiceDescriptor":
-        return ServiceDescriptor()
+    def run_default_callbacks(self) -> "ServiceDescriptor": ...
 
 
 class Host: ...
