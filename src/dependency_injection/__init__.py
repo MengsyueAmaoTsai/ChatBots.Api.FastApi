@@ -4,6 +4,11 @@ from enum import Enum
 from typing import Any, Callable, Optional, SupportsIndex, cast, overload
 
 
+class ServiceCollectionReadOnlyException(Exception):
+    def __init__(self) -> None:
+        super().__init__("Service collection is read-only.")
+
+
 class ServiceIdentifier:
     @staticmethod
     def from_service_type(service_type: type) -> "ServiceIdentifier":
@@ -200,7 +205,7 @@ class ServiceCollection(IServiceCollection):
 
     def __check_read_only(self) -> None:
         if self.is_read_only:
-            raise RuntimeError("Collection is read-only")
+            raise ServiceCollectionReadOnlyException()
 
     @overload
     def _add(
