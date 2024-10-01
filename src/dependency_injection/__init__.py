@@ -202,6 +202,38 @@ class ServiceCollection(IServiceCollection):
         if self.is_read_only:
             raise RuntimeError("Collection is read-only")
 
+    @overload
+    def _add(
+        self, service_type: type, implementation_type: type, lifetime: ServiceLifetime
+    ) -> "IServiceCollection": ...
+
+    @overload
+    def _add(
+        self,
+        service_type: type,
+        implementation_factory: Callable[["IServiceProvider"], object],
+        lifetime: ServiceLifetime,
+    ) -> "IServiceCollection": ...
+
+    def _add(self, service_type: type, *args: Any, **kwargs: Any) -> "IServiceCollection":
+        if len(args) != 2:
+            raise ValueError("Invalid number of arguments")
+
+        lifetime = args[1]
+
+        if callable(args[0]):
+            print("Factory")
+            factory = args[0]
+            descriptor = ServiceDescriptor(service_type, factory, lifetime)
+        else:
+            print("Implementation")
+            implementation_type = args[0]
+            descriptor = ServiceDescriptor(service_type, implementation_type, lifetime)
+
+        self.append(descriptor)
+
+        return self
+
 
 class ServiceProviderCallSite(ServiceCallSite): ...
 
