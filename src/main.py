@@ -1,6 +1,4 @@
-from typing import Callable
-
-from dependency_injection import ServiceProvider
+from dependency_injection import ServiceDescriptor, ServiceProvider
 
 
 class IMyService:
@@ -19,7 +17,9 @@ class OtherService(IOtherService):
     pass
 
 
-provider = ServiceProvider()
+descriptor = ServiceDescriptor()
+
+provider = ServiceProvider([descriptor])
 
 service = provider.get_required_service(IMyService)
 
