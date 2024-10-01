@@ -1,4 +1,8 @@
-from dependency_injection import ServiceDescriptor, ServiceProvider, ServiceProviderOptions
+from dependency_injection import (
+    ServiceCollection,
+    ServiceProvider,
+    ServiceProviderOptions,
+)
 
 
 class IMyService:
@@ -17,9 +21,12 @@ class OtherService(IOtherService):
     pass
 
 
-descriptor = ServiceDescriptor()
+services = ServiceCollection()
+services.make_read_only()
+print(services.length)
 
-provider = ServiceProvider([descriptor], ServiceProviderOptions())
+
+provider = ServiceProvider(services, ServiceProviderOptions())
 
 service = provider.get_required_service(IMyService)
 
