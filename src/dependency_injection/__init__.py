@@ -71,7 +71,9 @@ class ServiceProviderCallSite(ServiceCallSite): ...
 class IServiceScopeFactory: ...
 
 
-class ConstantCallSite: ...
+class ConstantCallSite(ServiceCallSite):
+    def __init__(self, service_type: type, default_value: Optional[object]) -> None:
+        pass
 
 
 class IServiceProviderIsService: ...
@@ -80,8 +82,17 @@ class IServiceProviderIsService: ...
 class IServiceProviderIsKeyedService: ...
 
 
+@dataclass()
+class ServiceProviderOptions:
+    validate_scopes: bool = False
+    validate_on_build: bool = False
+
+
+class CallSiteValidator: ...
+
+
 class ServiceProvider:
-    def __init__(self, service_descriptors: list[ServiceDescriptor]) -> None:
+    def __init__(self, service_descriptors: list[ServiceDescriptor], options: ServiceProviderOptions) -> None:
         self._root = ServiceProviderEngineScope(self, True)
 
         self._service_accessors: ServiceAccessorCollection[ServiceIdentifier, ServiceAccessor] = (
@@ -89,19 +100,34 @@ class ServiceProvider:
         )
 
         self._call_site_factory = CallSiteFactory(service_descriptors)
+
         CallSiteFactory.add(ServiceIdentifier.from_service_type(type(IServiceProvider)), ServiceProviderCallSite())
-        # CallSiteFactory.add(
-        #     ServiceIdentifier.from_service_type(type(IServiceScopeFactory)),
-        #     ConstantCallSite(type(IServiceScopeFactory), self.root),
-        # )
-        # CallSiteFactory.add(
-        #     ServiceIdentifier.from_service_type(type(IServiceProviderIsService)),
-        #     ConstantCallSite(type(IServiceProviderIsService), CallSiteFactory),
-        # )
-        # CallSiteFactory.add(
-        #     ServiceIdentifier.from_service_type(type(IServiceProviderIsKeyedService)),
-        #     ConstantCallSite(type(IServiceProviderIsKeyedService), CallSiteFactory),
-        # )
+        CallSiteFactory.add(
+            ServiceIdentifier.from_service_type(type(IServiceScopeFactory)),
+            ConstantCallSite(type(IServiceScopeFactory), self.root),
+        )
+        CallSiteFactory.add(
+            ServiceIdentifier.from_service_type(type(IServiceProviderIsService)),
+            ConstantCallSite(type(IServiceProviderIsService), CallSiteFactory),
+        )
+        CallSiteFactory.add(
+            ServiceIdentifier.from_service_type(type(IServiceProviderIsKeyedService)),
+            ConstantCallSite(type(IServiceProviderIsKeyedService), CallSiteFactory),
+        )
+
+        if options.validate_scopes:
+            self._call_site_validator = CallSiteValidator()
+
+        if options.validate_on_build:
+            exceptions: list[Exception] = []
+            for descriptor in service_descriptors:
+                try:
+                    print("Validate service: ", descriptor)
+                except Exception as e:
+                    exceptions.append(e)
+
+            if exceptions:
+                raise Exception(f"Validation failed: {exceptions}")
 
     @property
     def root(self) -> ServiceProviderEngineScope:
