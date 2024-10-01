@@ -1,74 +1,69 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any, Optional, overload
+from typing import Any, Callable, Optional, cast, overload
 
 
-class ServiceDescriptor: ...
-
-
-class IServiceProvider(ABC):
-    @abstractmethod
-    def get_service(self, service_type: type) -> Optional[object]: ...
-
-
-class IKeyedServiceProvider(ABC):
-    @abstractmethod
-    def get_keyed_service(self, service_type: type, service_key: Optional[object]) -> Optional[object]: ...
-
-    @abstractmethod
-    def get_required_keyed_service(self, service_type: type, service_key: Optional[object]) -> object: ...
-
-
-@dataclass(frozen=True)
-class ServiceProviderOptions:
-    validate_scopes: bool = False
-    validate_on_build: bool = False
-
+class ServiceIdentifier:
     @staticmethod
-    def default() -> "ServiceProviderOptions":
-        return ServiceProviderOptions()
+    def from_service_type(service_type: type) -> "ServiceIdentifier":
+        return ServiceIdentifier()
 
 
-class IServiceCollection(ABC):
-    @overload
-    def build_service_provider(self) -> "IServiceProvider": ...
-
-    @overload
-    def build_service_provider(self, validate_scopes: bool) -> IServiceProvider: ...
-
-    @overload
-    def build_service_provider(self, options: ServiceProviderOptions) -> IServiceProvider: ...
-
-    def build_service_provider(self, *args: Any, **kwargs: Any) -> IServiceProvider:
-        if len(args) == 1 and isinstance(args[0], ServiceProviderOptions):
-            options = args[0]
-            return ServiceProvider(self, options)
-
-        if len(args) == 1 and isinstance(args[0], bool):
-            validate_scopes = args[0]
-            options = ServiceProviderOptions(validate_scopes=validate_scopes)
-            return ServiceProvider(self, options)
-
-        if len(args) == 0:
-            options = ServiceProviderOptions.default()
-            return ServiceProvider(self, options)
-
-        raise ValueError(f"Invalid arguments: {args}")
+class ServiceCallSite: ...
 
 
-class ServiceCollection(IServiceCollection): ...
+class ServiceAccessorCollection[TKey, TValue]:
+    def __init__(self) -> None:
+        self._dict: dict[TKey, TValue] = {}
+
+    def get_or_add(self, key: TKey, factory: Callable[[TKey], TValue]) -> TValue:
+        if key in self._dict:
+            return self._dict[key]
+
+        value = factory(key)
+        self._dict[key] = value
+        return value
 
 
-class ServiceProvider(IServiceProvider, IKeyedServiceProvider):
-    def __init__(self, service_collection: IServiceCollection, options: ServiceProviderOptions):
-        self.service_collection = service_collection
-        self.options = options
+class ServiceProviderEngineScope:
+    pass
 
-    def get_keyed_service(self, service_type: type, service_key: Optional[object]) -> Optional[object]:
-        raise NotImplementedError
 
-    def get_required_keyed_service(self, service_type: type, service_key: Optional[object]) -> object:
-        raise NotImplementedError
+class ServiceAccessor:
+    call_site: Optional[ServiceCallSite] = None
+    realized_service: Optional[Callable[[ServiceProviderEngineScope], Optional[object]]] = None
+
+
+class ServiceProvider:
+    def __init__(self) -> None:
+        self._root = ServiceProviderEngineScope()
+
+        self._service_accessors: ServiceAccessorCollection[ServiceIdentifier, ServiceAccessor] = (
+            ServiceAccessorCollection()
+        )
+
+    @property
+    def root(self) -> ServiceProviderEngineScope:
+        return self._root
+
+    def get_required_service[TService](self, service_type: type[TService]) -> TService:
+        service = self.get_service(service_type)
+
+        if service is None:
+            raise Exception(f"Service of type {service_type.__name__} not found")
+
+        return cast(TService, service)
 
     def get_service(self, service_type: type) -> Optional[object]:
-        raise NotImplementedError
+        return self._get_service(ServiceIdentifier.from_service_type(service_type), self.root)
+
+    def _get_service(
+        self, service_identifier: ServiceIdentifier, scope: ServiceProviderEngineScope
+    ) -> Optional[object]:
+        accessor = self._service_accessors.get_or_add(service_identifier, self._create_service_accessor)
+
+        if accessor.realized_service is None:
+            return None
+
+        return accessor.realized_service(scope)
+
+    def _create_service_accessor(self, service_identifier: ServiceIdentifier) -> ServiceAccessor:
+        return ServiceAccessor()

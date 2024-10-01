@@ -1,6 +1,26 @@
-print("APP")
-from dependency_injection import ServiceCollection
+from typing import Callable
 
-collection = ServiceCollection()
+from dependency_injection import ServiceProvider
 
-provider = collection.build_service_provider()
+
+class IMyService:
+    """"""
+
+
+class MyService(IMyService):
+    pass
+
+
+class IOtherService:
+    """"""
+
+
+class OtherService(IOtherService):
+    pass
+
+
+provider = ServiceProvider()
+
+service = provider.get_required_service(IMyService)
+
+print(f"Get service from container: {service}")
