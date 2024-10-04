@@ -1,8 +1,6 @@
-from dependency_injection import (
-    ServiceCollection,
-    ServiceProvider,
-    ServiceProviderOptions,
-)
+import sys
+
+from builder import WebApplication
 
 
 class IMyService:
@@ -21,13 +19,5 @@ class OtherService(IOtherService):
     pass
 
 
-services = ServiceCollection()
-services.make_read_only()
-print(services.length)
-
-
-provider = ServiceProvider(services, ServiceProviderOptions())
-
-service = provider.get_required_service(IMyService)
-
-print(f"Get service from container: {service}")
+builder = WebApplication.create_builder(sys.argv)
+# app = builder.build()
