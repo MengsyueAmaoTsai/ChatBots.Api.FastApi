@@ -20,4 +20,3 @@ class OtherService(IOtherService):
 
 
 builder = WebApplication.create_builder(sys.argv)
-# app = builder.build()

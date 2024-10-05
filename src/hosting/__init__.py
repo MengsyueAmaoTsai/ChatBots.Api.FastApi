@@ -1,17 +1,16 @@
 import os
 from abc import ABC
 from dataclasses import dataclass
-from typing import Any, Callable, Optional, overload
+from typing import Any, Callable, Optional, cast, overload
 
 from configuration import ConfigurationManager, IConfiguration
-from dependency_injection import IServiceCollection, IServiceProvider, ServiceCollection
+from dependency_injection import IServiceCollection, IServiceProvider, ServiceCollection, ServiceDescriptor
 
 
-class IHostEnvironment(ABC):
-    environment_name: str
-    application_name: str
-    content_root_path: str
-    content_root_file_provider: object
+class IHostApplicationLifetime(ABC): ...
+
+
+class IApplicationLifetime(ABC): ...
 
 
 class IHostingEnvironment(ABC):
@@ -19,6 +18,12 @@ class IHostingEnvironment(ABC):
     application_name: str
     content_root_path: str
     content_root_file_provider: object
+
+
+class IHostBuilder(ABC): ...
+
+
+class IHostService(ABC): ...
 
 
 @dataclass()
@@ -53,7 +58,7 @@ class HostBuilderContext:
     def __init__(self, properties: dict[object, object]) -> None:
         self._properties = properties
         self.configuration: Optional[IConfiguration] = None
-        self.hosting_environment: Optional[IHostEnvironment] = None
+        self.hosting_environment: Optional[IHostingEnvironment] = None
 
     @property
     def properties(self) -> dict[object, object]:
@@ -61,7 +66,7 @@ class HostBuilderContext:
 
 
 @dataclass()
-class HostingEnvironment(IHostingEnvironment, IHostEnvironment):
+class HostingEnvironment(IHostingEnvironment):
     environment_name: str = str()
     application_name: str = str()
     content_root_path: str = str()
@@ -80,9 +85,12 @@ class Environments:
     Development = "Development"
 
 
+class ApplicationLifetime(IHostApplicationLifetime): ...
+
+
 class HostBuilder:
     @classmethod
-    def create_hosting_environment(cls, host_configuration: IConfiguration) -> tuple[IHostEnvironment, object]:
+    def create_hosting_environment(cls, host_configuration: IConfiguration) -> tuple[IHostingEnvironment, object]:
         hosting_environment = HostingEnvironment(
             environment_name=host_configuration[HostDefaults.EnvironmentKey] or Environments.Production,
             content_root_path=HostBuilder._resolve_content_root_path(
@@ -116,12 +124,33 @@ class HostBuilder:
     def populate_service_collection(
         services: IServiceCollection,
         host_builder_context: HostBuilderContext,
-        hosting_environment: HostingEnvironment,
+        hosting_environment: IHostingEnvironment,
         default_file_provider: object,
         app_configuration: IConfiguration,
         service_provider_getter: Callable[[], IServiceProvider],
     ) -> None:
-        pass
+        services.add_singleton(IHostingEnvironment, hosting_environment)
+        services.add_singleton(host_builder_context)
+        services.add_singleton(IConfiguration, lambda _: app_configuration)
+        # services.add_singleton(s => (IApplicationLifetime)s.get_required_service(IHostApplicationLifetime));
+        services.add_singleton(IHostApplicationLifetime, ApplicationLifetime)
+
+
+# AddLifetime(services);
+# services.AddSingleton<IHost>(_ =>
+# {
+#     IServiceProvider appServices = serviceProviderGetter();
+#     return new Internal.Host(appServices,
+#         hostingEnvironment,
+#         defaultFileProvider,
+#         appServices.GetRequiredService<IHostApplicationLifetime>(),
+#         appServices.GetRequiredService<ILogger<Internal.Host>>(),
+#         appServices.GetRequiredService<IHostLifetime>(),
+#         appServices.GetRequiredService<IOptions<HostOptions>>());
+# });
+# services.add_options().configure(HostOptions, lambda options: options.initialize(host_builder_context.configuration); });
+# services.add_logging();
+# services.add_metrics();
 
 
 class HostApplicationBuilder:
@@ -139,7 +168,7 @@ class HostApplicationBuilder:
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._service_collection = ServiceCollection()
-        self._app_services: Optional[IServiceProvider] = None
+        self._app_services: IServiceProvider
 
         if len(args) == 0:
             print("No args")
@@ -164,8 +193,14 @@ class HostApplicationBuilder:
             if not settings.disable_defaults:
                 ...
 
+            print("TODO: ServiceProviderOptions", service_provider_options)
+
         if (len(args) == 2) and isinstance(args[0], HostApplicationBuilderSettings) and isinstance(args[1], bool):
             print("HostApplicationBuilderSettings and bool args")
+
+    def _create_service_provider(self) -> IServiceProvider:
+        print("Create service provider")
+        raise NotImplementedError("Create service provider")
 
     @property
     def services(self) -> IServiceCollection:
@@ -173,7 +208,7 @@ class HostApplicationBuilder:
 
     def __initialize(
         self, settings: HostApplicationBuilderSettings
-    ) -> tuple[HostBuilderContext, IHostEnvironment, LoggingBuilder, MetricsBuilder]:
+    ) -> tuple[HostBuilderContext, IHostingEnvironment, LoggingBuilder, MetricsBuilder]:
         # add_command_config(self._configuration, settings.args)
         options = {}
 
@@ -187,7 +222,7 @@ class HostApplicationBuilder:
             options["content_root_path"] = settings.content_root_path
 
         if not options:
-            print("No options")  # self._configuration.add_in_memory_collection(options)
+            print("self._configuration.add_in_memory_collection(options)")
 
         hosting_environment, physical_file_provider = HostBuilder.create_hosting_environment(self._configuration)
         # self._configuration.set_file_provider(physical_file_provider)
@@ -206,3 +241,55 @@ class HostApplicationBuilder:
         )
 
         return host_builder_context, hosting_environment, LoggingBuilder(self.services), MetricsBuilder(self.services)
+
+
+class BootstrapHostBuilder(IHostBuilder):
+    def __init__(self, builder: HostApplicationBuilder) -> None:
+        self._configure_host_actions = []
+        self._configure_app_actions = []
+        self._configure_service_actions = []
+
+        self._builder = builder
+        self._context: Optional[HostBuilderContext] = None
+
+        for descriptor in self._builder.services:
+            if descriptor.service_type == HostBuilderContext:
+                self._context = cast(HostBuilderContext, descriptor.implementation_instance)
+                break
+
+        if self._context is None:  # type: ignore
+            raise ValueError("HostBuilderContext not found")
+
+    @property
+    def context(self) -> HostBuilderContext:
+        return cast(HostBuilderContext, self._context)
+
+    @property
+    def properties(self) -> dict[object, object]:
+        return self.context.properties
+
+    def run_default_callbacks(self) -> ServiceDescriptor:
+        raise NotImplementedError("Not implemented yet")
+        for action in self._configure_host_actions:
+            print(action)
+
+        for action in self._configure_app_actions:
+            print(action)
+
+        for action in self._configure_service_actions:
+            print(action)
+
+        generic_web_host_service_descriptor: Optional[ServiceDescriptor] = None
+
+        for i in range(len(self._builder.services) - 1, -1, -1):
+            descriptor = self._builder.services[i]
+
+            if descriptor.service_type == IHostService:
+                generic_web_host_service_descriptor = descriptor
+                self._builder.services.remove_at(i)
+                break
+
+        if generic_web_host_service_descriptor is None:
+            raise ValueError("GenericWebHostServiceDescriptor not found")
+
+        return generic_web_host_service_descriptor

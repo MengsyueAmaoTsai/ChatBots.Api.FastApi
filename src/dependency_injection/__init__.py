@@ -85,8 +85,57 @@ class ServiceDescriptor:
 
     def __init__(self, service_type: type, *args: Any, **kwargs: Any) -> None:
         self._service_type = service_type
-        self._service_key: Optional[object]
-        self._lifetime: ServiceLifetime
+
+        self._implementation_instance: Optional[object] = None
+        self._implementation_factory: Optional[Callable[["IServiceProvider"], Optional[object]]] = None
+        self._implementation_type: Optional[type] = None
+
+        if len(args) == 2 and isinstance(args[0], type) and isinstance(args[1], ServiceLifetime):
+            self._implementation_type = args[0]
+            self._lifetime = args[1]
+
+        if (
+            len(args) == 3
+            and isinstance(args[0], object)
+            and isinstance(args[1], type)
+            and isinstance(args[2], ServiceLifetime)
+        ):
+            self._service_key = args[0]
+            self._implementation_type = args[1]
+            self._lifetime = args[2]
+
+        if len(args) == 1 and isinstance(args[0], object):
+            self._implementation_instance = args[0]
+            self._lifetime = ServiceLifetime.Singleton
+            self._service_key = None
+
+        if len(args) == 2 and isinstance(args[0], object) and isinstance(args[1], object):
+            self._implementation_instance = args[1]
+            self._lifetime = ServiceLifetime.Singleton
+            self._service_key = None
+
+        if len(args) == 2 and callable(args[0]) and isinstance(args[1], ServiceLifetime):
+            self._service_key = None
+            self._implementation_factory = args[0]
+            self._lifetime = args[1]
+
+        if (
+            len(args) == 3
+            and isinstance(args[0], object)
+            and callable(args[1])
+            and isinstance(args[2], ServiceLifetime)
+        ):
+            self._service_key = args[0]
+            self._lifetime = args[2]
+
+            if self.service_key is None:
+                self._implementation_factory = lambda sp: args[1](sp, None)
+            else:
+                self._implementation_factory = args[1]
+
+        if len(args) == 2 and isinstance(args[0], object) and isinstance(args[1], ServiceLifetime):
+            self._service_key = args[0]
+            self._lifetime = args[1]
 
     @property
     def lifetime(self) -> ServiceLifetime:
@@ -102,29 +151,42 @@ class ServiceDescriptor:
 
     @property
     def implementation_type(self) -> Optional[type]:
-        raise NotImplementedError()
+        return None if self.is_keyed_service else self._implementation_type
 
     @property
     def keyed_implementation_type(self) -> Optional[type]:
-        raise NotImplementedError()
+        if not self.is_keyed_service:
+            raise ValueError("Service is not keyed")
+
+        return self._service_type
 
     @property
     def implementation_instance(self) -> Optional[object]:
-        raise NotImplementedError()
+        return None if self.is_keyed_service else self._implementation_instance
 
     @property
     def keyed_implementation_instance(self) -> Optional[object]:
-        raise NotImplementedError()
+        if not self.is_keyed_service:
+            raise ValueError("Service is not keyed")
+
+        return self._service_key
 
     @property
     def implementation_factory(self) -> Optional[Callable[["IServiceProvider"], Optional[object]]]:
-        raise NotImplementedError()
+        return (
+            None
+            if self.is_keyed_service
+            else cast(Callable[["IServiceProvider"], Optional[object]], self._implementation_factory)
+        )
 
     @property
     def keyed_implementation_factory(
         self,
     ) -> Optional[Callable[["IServiceProvider", Optional[object]], Optional[object]]]:
-        raise NotImplementedError()
+        if not self.is_keyed_service:
+            raise ValueError("Service is not keyed")
+
+        return self.keyed_implementation_factory
 
     @property
     def is_keyed_service(self) -> bool:
@@ -157,6 +219,98 @@ class IServiceCollection(list[ServiceDescriptor], ABC):
     @property
     @abstractmethod
     def is_read_only(self) -> bool: ...
+
+    @overload
+    def add_singleton(self, service_type: type, implementation_type: type) -> "IServiceCollection": ...
+
+    @overload
+    def add_singleton(
+        self, service_type: type, implementation_factory: Callable[[IServiceProvider], object]
+    ) -> "IServiceCollection": ...
+
+    @overload
+    def add_singleton(self, service_type: type) -> "IServiceCollection": ...
+
+    @overload
+    def add_singleton(
+        self,
+        service_type: type,
+        implementation_type: type,
+        implementation_factory: Callable[["IServiceProvider"], object],
+    ) -> "IServiceCollection": ...
+
+    @overload
+    def add_singleton(self, service_type: type, implementation_instance: object) -> "IServiceCollection": ...
+
+    @overload
+    def add_singleton(self, implementation_instance: object) -> "IServiceCollection": ...
+
+    def add_singleton(self, *args: Any, **kwargs: Any) -> "IServiceCollection":
+        if len(args) == 2 and isinstance(args[0], type) and isinstance(args[1], type):
+            service_type = args[0]
+            implementation_type = args[1]
+            self.__add(service_type, implementation_type, ServiceLifetime.Singleton)
+
+        if len(args) == 2 and isinstance(args[0], type) and callable(args[1]):
+            service_type = args[0]
+            factory = args[1]
+            self.__add(service_type, factory, ServiceLifetime.Singleton)
+
+        if len(args) == 1 and isinstance(args[0], type):
+            service_type = args[0]
+            self.__add(service_type, service_type, ServiceLifetime.Singleton)
+
+        if len(args) == 3 and isinstance(args[0], type) and isinstance(args[1], type) and callable(args[2]):
+            service_type = args[0]
+            implementation_type = args[1]
+            factory = args[2]
+            self.__add(service_type, factory, ServiceLifetime.Singleton)
+
+        if len(args) == 1 and isinstance(args[0], object):
+            instance = args[0]
+            descriptor = ServiceDescriptor(type(instance), instance)
+            self.append(descriptor)
+
+        if len(args) == 2 and isinstance(args[0], type):
+            service_type = args[0]
+            instance = args[1]
+            descriptor = ServiceDescriptor(service_type, instance)
+            self.append(descriptor)
+
+        return self
+
+    @abstractmethod
+    def remove_at(self, index: SupportsIndex) -> None: ...
+
+    @overload
+    def __add(
+        self,
+        service_type: type,
+        implementation_factory: Callable[[IServiceProvider], object],
+        lifetime: ServiceLifetime,
+    ) -> "IServiceCollection": ...
+
+    @overload
+    def __add(
+        self, service_type: type, implementation_type: type, lifetime: ServiceLifetime
+    ) -> "IServiceCollection": ...
+
+    def __add(self, *args: Any, **_: Any) -> "IServiceCollection":
+        if len(args) == 3 and callable(args[1]):
+            service_type = args[0]
+            factory = args[1]
+            lifetime = args[2]
+            descriptor = ServiceDescriptor(service_type, factory, lifetime)
+            self.append(descriptor)
+
+        if len(args) == 3 and isinstance(args[1], type):
+            service_type = args[0]
+            implementation_type = args[1]
+            lifetime = args[2]
+            descriptor = ServiceDescriptor(service_type, implementation_type, lifetime)
+            self.append(descriptor)
+
+        return self
 
 
 class ServiceCollection(IServiceCollection):
