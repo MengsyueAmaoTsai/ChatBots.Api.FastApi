@@ -3,14 +3,23 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Any, Callable, Optional, cast, overload
 
-from configuration import ConfigurationManager, IConfiguration
-from dependency_injection import IServiceCollection, IServiceProvider, ServiceCollection, ServiceDescriptor
+from configuration import ConfigurationManager, IConfiguration, IConfigurationBuilder
+from dependency_injection import (
+    IServiceCollection,
+    IServiceProvider,
+    ServiceCollection,
+    ServiceDescriptor,
+    ServiceProviderOptions,
+)
 
 
 class IHostApplicationLifetime(ABC): ...
 
 
 class IApplicationLifetime(ABC): ...
+
+
+class IWebHostBuilder(ABC): ...
 
 
 class IHostingEnvironment(ABC):
@@ -20,7 +29,13 @@ class IHostingEnvironment(ABC):
     content_root_file_provider: object
 
 
-class IHostBuilder(ABC): ...
+class WebHostBuilderOptions: ...
+
+
+class IHostBuilder(ABC):
+    def configure_web_host_defaults(
+        self, configure: Callable[[IWebHostBuilder], None], configure_options: Callable[[WebHostBuilderOptions], None]
+    ) -> "IHostBuilder": ...
 
 
 class IHostService(ABC): ...
@@ -181,17 +196,20 @@ class HostApplicationBuilder:
             self._configuration = settings.configuration or ConfigurationManager()
 
             if not settings.disable_defaults:
-                ...
+                if settings.content_root_path is None and self._configuration[HostDefaults.ContentRootKey] is None:
+                    print("Set default content root")
 
             context, environment, logging, metrics = self.__initialize(settings)
 
             print(environment)
             print(context)
 
-            service_provider_options = None
+            service_provider_options: Optional[ServiceProviderOptions] = None
 
             if not settings.disable_defaults:
-                ...
+                self.__apply_default_app_configuration(context, self._configuration, settings.args or [])
+                self.__add_default_services(context, self.services)
+                service_provider_options = self.__create_default_service_provider_options(context)
 
             print("TODO: ServiceProviderOptions", service_provider_options)
 
@@ -201,6 +219,18 @@ class HostApplicationBuilder:
     def _create_service_provider(self) -> IServiceProvider:
         print("Create service provider")
         raise NotImplementedError("Create service provider")
+
+    def __apply_default_app_configuration(
+        self, context: HostBuilderContext, configuration_builder: IConfiguration, args: list[str]
+    ) -> None: ...
+
+    def __add_default_services(self, context: HostBuilderContext, services: IServiceCollection) -> None:
+        print("TODO: Add default services")
+
+    def __create_default_service_provider_options(self, context: HostBuilderContext) -> ServiceProviderOptions:
+        # is_development = context.hosting_environment.environment_name == Environments.Development
+
+        return ServiceProviderOptions(validate_scopes=True, validate_on_build=True)
 
     @property
     def services(self) -> IServiceCollection:
@@ -245,9 +275,9 @@ class HostApplicationBuilder:
 
 class BootstrapHostBuilder(IHostBuilder):
     def __init__(self, builder: HostApplicationBuilder) -> None:
-        self._configure_host_actions = []
-        self._configure_app_actions = []
-        self._configure_service_actions = []
+        self._configure_host_actions: list[Callable[[IConfigurationBuilder], None]] = []
+        self._configure_app_actions: list[Callable[[HostBuilderContext], IConfigurationBuilder]] = []
+        self._configure_service_actions: list[Callable[[HostBuilderContext], IServiceCollection]] = []
 
         self._builder = builder
         self._context: Optional[HostBuilderContext] = None
@@ -269,7 +299,6 @@ class BootstrapHostBuilder(IHostBuilder):
         return self.context.properties
 
     def run_default_callbacks(self) -> ServiceDescriptor:
-        raise NotImplementedError("Not implemented yet")
         for action in self._configure_host_actions:
             print(action)
 
@@ -293,3 +322,7 @@ class BootstrapHostBuilder(IHostBuilder):
             raise ValueError("GenericWebHostServiceDescriptor not found")
 
         return generic_web_host_service_descriptor
+
+
+class WebHostBuilderContext:
+    pass

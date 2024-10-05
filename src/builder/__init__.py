@@ -3,7 +3,13 @@ from typing import Any, Callable, Optional, overload
 
 from configuration import ConfigurationManager
 from dependency_injection import ServiceDescriptor
-from hosting import BootstrapHostBuilder, HostApplicationBuilder, HostApplicationBuilderSettings, IHostBuilder
+from hosting import (
+    BootstrapHostBuilder,
+    HostApplicationBuilder,
+    HostApplicationBuilderSettings,
+    IHostBuilder,
+    WebHostBuilderContext,
+)
 
 
 @dataclass()
@@ -68,6 +74,9 @@ class WebApplicationBuilder:
     def __initialize_hosting(self, bootstrap_host_builder: BootstrapHostBuilder) -> ServiceDescriptor:
         descriptor = bootstrap_host_builder.run_default_callbacks()
 
+        web_host_context = bootstrap_host_builder.properties[WebHostBuilderContext]
+
+        print("WebHostBuilderContext: ", web_host_context)
         return descriptor
 
 
